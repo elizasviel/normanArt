@@ -44,6 +44,26 @@ const Box = (props: ThreeElements["mesh"]) => {
   );
 };
 
+const Ball = (props: ThreeElements["mesh"]) => {
+  const ref = useRef<THREE.Mesh>(null!);
+  const [hovered, hover] = useState(false);
+  const [clicked, click] = useState(false);
+  useFrame((state, delta) => (ref.current.rotation.x += delta));
+  return (
+    <mesh
+      {...props}
+      ref={ref}
+      scale={clicked ? 1.5 : 1}
+      onClick={(event) => click(!clicked)}
+      onPointerOver={(event) => hover(true)}
+      onPointerOut={(event) => hover(false)}
+    >
+      <sphereGeometry args={[1, 8, 8]} />
+      <meshStandardMaterial color={hovered ? "hotpink" : "orange"} />
+    </mesh>
+  );
+};
+
 const Test = () => {
   return (
     <div>
@@ -59,6 +79,9 @@ const Test = () => {
         <ambientLight intensity={Math.PI / 2} />
         <Box position={[-1.2, 0, 0]} />
         <Box position={[1.2, 0, 0]} />
+        <Box position={[3.2, 0, 0]} />
+        <Ball position={[5.2, 0, 0]} />
+        <Ball position={[7.2, 0, 0]} />
       </Canvas>
       <Canvas>
         <Physics>
