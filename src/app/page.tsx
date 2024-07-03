@@ -11,10 +11,9 @@ console.log();
 getStaticProps();
 
 export default function Home() {
-  console.log("isthisaserver");
-
   return (
     <main>
+      <button>clickME</button>
       <Test />
     </main>
   );
