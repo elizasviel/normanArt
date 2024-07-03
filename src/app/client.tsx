@@ -11,6 +11,7 @@ const Test = () => {
   return (
     <div>
       <Canvas
+        camera={{ position: [6, 4, 12], fov: 80 }}
         style={{
           width: innerWidth,
           height: innerHeight,
@@ -30,36 +31,206 @@ const Test = () => {
         <Suspense>
           <Physics interpolate={true} gravity={[0, -9.81, 0]} debug>
             <RigidBody
-              //shared starting position that can be overwrite  children
+              //shared starting position that can be overwritten by children
               colliders="hull"
               restitution={1}
               type="fixed"
             >
-              <Box args={[5, 5, 5]} position={[-6, 0, -4]}>
-                <meshStandardMaterial transparent={true} opacity={0.2} />
-              </Box>
+              {/* Back face */}
+              <Sphere args={[0.5, 32, 32]} position={[0, 0, 0]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[0, 0, -4]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[0, 0, -8]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[0, 0, 0]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[0, -4, 0]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[0, -8, 0]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[0, 0, 0]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[-4, 0, 0]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[-8, 0, 0]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[0, 0, 0]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[0, 0, 4]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[0, 0, 8]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[0, 0, 0]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[0, 4, 0]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[0, 8, 0]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[0, 0, 0]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[4, 0, 0]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Sphere args={[0.5, 32, 32]} position={[8, 0, 0]}>
+                <meshStandardMaterial color={"lightpurple"} />
+              </Sphere>
+
+              <Plane
+                args={[28, 20]}
+                position={[0, 0, -14]}
+                rotation={[0, Math.PI, 0]}
+              >
+                <meshStandardMaterial
+                  color={"green"}
+                  transparent={true}
+                  opacity={0.7}
+                  side={THREE.DoubleSide}
+                />
+              </Plane>
+
+              {/* Bottom face */}
+              <Plane
+                args={[28, 28]}
+                position={[0, -10, 0]}
+                rotation={[Math.PI / 2, 0, 0]}
+              >
+                <meshStandardMaterial
+                  transparent={true}
+                  opacity={0.7}
+                  side={THREE.DoubleSide}
+                />
+              </Plane>
+              {/* Left face */}
+              <Plane
+                args={[28, 20]}
+                position={[-14, 0, 0]}
+                rotation={[0, Math.PI / 2, 0]}
+              >
+                <meshStandardMaterial
+                  color={"lightgreen"}
+                  transparent={true}
+                  opacity={0.7}
+                  side={THREE.DoubleSide}
+                />
+              </Plane>
+
+              {/* Front face */}
+              <Plane args={[28, 20]} position={[0, 0, 14]} rotation={[0, 0, 0]}>
+                <meshStandardMaterial
+                  transparent={true}
+                  opacity={0.3}
+                  side={THREE.DoubleSide}
+                />
+              </Plane>
+
+              {/* Right face */}
+              <Plane
+                args={[28, 20]}
+                position={[14, 0, 0]}
+                rotation={[0, -Math.PI / 2, 0]}
+              >
+                <meshStandardMaterial
+                  transparent={true}
+                  opacity={0.3}
+                  side={THREE.DoubleSide}
+                />
+              </Plane>
+
+              {/* Top face */}
+              <Plane
+                args={[28, 28]}
+                position={[0, 10, 0]}
+                rotation={[-Math.PI / 2, 0, 0]}
+              >
+                <meshStandardMaterial
+                  transparent={true}
+                  opacity={0.3}
+                  side={THREE.DoubleSide}
+                />
+              </Plane>
+            </RigidBody>
+            <RigidBody colliders="hull" restitution={1.2}>
+              <Sphere args={[0.5, 32, 32]} position={[-2, 2, -2]}>
+                <meshStandardMaterial color={"hotpink"} />
+              </Sphere>
             </RigidBody>
             <RigidBody colliders="hull" restitution={0.8}>
-              <Sphere args={[0.5, 16, 16]} position={[-4, 4, -2]}>
-                <meshStandardMaterial color={"hotpink"} />
+              <Sphere args={[0.2, 16, 16]} position={[-2, 4, -2]}>
+                <meshStandardMaterial color={"black"} />
               </Sphere>
             </RigidBody>
             <RigidBody>
               <Plane
-                args={[10, 10]}
+                args={[6, 6]}
                 position={[-2, -2, -2]}
                 rotation={[-Math.PI / 2.2, 0, 0]}
               >
-                <meshStandardMaterial color={"hotpink"} />
+                <meshStandardMaterial
+                  color={"black"}
+                  transparent={true}
+                  opacity={0.7}
+                />
               </Plane>
             </RigidBody>
             <RigidBody>
               <Plane
-                args={[10, 10]}
+                args={[4, 4]}
                 position={[-2, -2, -2]}
-                rotation={[-Math.PI / 1.8, Math.PI / 3.5, 0]}
+                rotation={[-Math.PI / 1.8, Math.PI / 4.5, 0]}
               >
-                <meshStandardMaterial color={"green"} />
+                <meshStandardMaterial
+                  color={"lightgreen"}
+                  transparent={true}
+                  opacity={0.7}
+                />
+              </Plane>
+            </RigidBody>
+
+            <RigidBody>
+              <Plane
+                args={[4, 4]}
+                position={[6, -4, -8]}
+                rotation={[-Math.PI / 1.8, Math.PI / 4.5, 0]}
+              >
+                <meshStandardMaterial
+                  color={"lightgreen"}
+                  transparent={true}
+                  opacity={0.7}
+                />
               </Plane>
             </RigidBody>
           </Physics>
