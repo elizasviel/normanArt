@@ -13,9 +13,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  title     String   @db.VarChar(255)
-  artParams String?
+model Bumper {
+  id       Int    @id @default(autoincrement())
+  args     Int[] //args={[0.5, 32, 32]}
+  position Int[] //position={[0, 0, 0]}
+  color    String //color={"lightpurple"}
 }
