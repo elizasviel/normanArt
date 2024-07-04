@@ -17,7 +17,5 @@ export async function POST(request: Request) {
     },
   });
 
-  console.log(bumper);
-
   return new Response("POST Request recieved");
 }
