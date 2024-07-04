@@ -7,6 +7,7 @@ import { BuiltInShapes } from "../components/BuiltInShapes";
 import { CreatedShapes } from "../components/CreatedShapes";
 import { Controller } from "../components/Controller";
 import { BumperResponse } from "./api/route";
+import { CameraControls, CameraControlsProps, Sphere } from "@react-three/drei";
 import test from "../components/test";
 
 type Bumper = BumperResponse & {
@@ -23,7 +24,7 @@ const BallPit = () => {
     <div>
       <Controller setData={setData}></Controller>
       <Canvas
-        camera={{ position: [6, 4, 12], fov: 80 }}
+        camera={{ position: [60, 20, 20], fov: 80 }}
         style={{
           width: window.innerWidth,
           height: window.innerHeight,
@@ -39,9 +40,13 @@ const BallPit = () => {
         />
         <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
         <ambientLight intensity={Math.PI / 2} />
+        <CameraControls />
 
         <Suspense>
           <Physics interpolate={true} gravity={[0, -9.81, 0]} debug>
+            <RigidBody>
+              <Sphere args={[1, 100, 100]} position={[0, 0, 0]} />
+            </RigidBody>
             <RigidBody
               //shared starting position that can be overwritten by children
               colliders="hull"
