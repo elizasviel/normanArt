@@ -1,4 +1,5 @@
-import prisma from "../../../lib/prisma";
+import { Bumper } from "@prisma/client";
+import prisma from "../../lib/prisma";
 
 export const dynamic = "force-dynamic"; // defaults to auto
 export async function GET(request: Request) {
@@ -19,3 +20,5 @@ export async function POST(request: Request) {
 
   return new Response("POST Request recieved");
 }
+
+export type BumperResponse = Bumper;
