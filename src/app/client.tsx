@@ -7,15 +7,13 @@ import { BuiltInShapes } from "../components/BuiltInShapes";
 import { CreatedShapes } from "../components/CreatedShapes";
 import { Controller } from "../components/Controller";
 import { Player } from "../components/Player";
-import { BumperResponse } from "./api/route";
 import { CameraControls, Sphere, KeyboardControls } from "@react-three/drei";
+import { Bumper } from "@prisma/client";
 
-import test from "../components/test";
-
-type Bumper = BumperResponse & {
-  args: [number, number | undefined, number | undefined];
-  position: [number, number, number];
-};
+//"&" creates a "intersection" type
+//"|" creates a "union" type
+//Here, the intersection type is reducing the BumperResponse type to a more specific type
+//By adding the args and position properties
 
 export type CanvasData = Bumper[] | null;
 
