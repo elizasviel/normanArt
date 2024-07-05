@@ -32,7 +32,7 @@ export function Player() {
         ref={ref}
         colliders={false}
         mass={1}
-        position={[0, 10, 0]}
+        position={[0, 50, 0]}
         enabledRotations={[false, false, false]}
       >
         <CapsuleCollider args={[0.75, 0.5]} />
