@@ -1,132 +1,47 @@
 import * as THREE from "three";
 import React from "react";
-import { Sphere, Plane } from "@react-three/drei";
+import { Sphere } from "@react-three/drei";
+
+type sphereArgs = [
+  radius?: number | undefined,
+  widthSegments?: number | undefined,
+  heightSegments?: number | undefined,
+  phiStart?: number | undefined,
+  phiLength?: number | undefined,
+  thetaStart?: number | undefined,
+  thetaLength?: number | undefined
+];
+type spherePosition = [x: number, y: number, z: number];
 
 export const BuiltInShapes = () => {
-  const sphereCoordinates = [
+  const buildSphere = [
     {
-      args: [0.5, 32, 32],
-      position: [-14, 10, -14],
+      args: [1, 16, 16],
+      position: [0, 1, 2],
       color: "red",
     },
     {
-      args: [0.5, 32, 32],
-      position: [14, 10, -14],
-      color: "blue",
-    },
-    {
-      args: [0.5, 32, 32],
-      position: [-14, 10, 14],
+      args: [1, 16, 16],
+      position: [0, 0, 0],
       color: "green",
     },
     {
-      args: [0.5, 32, 32],
-      position: [14, 10, 14],
-      color: "yellow",
-    },
-    {
-      args: [0.5, 32, 32],
-      position: [-14, -10, -14],
-      color: "purple",
-    },
-    {
-      args: [0.5, 32, 32],
-      position: [14, -10, -14],
-      color: "orange",
-    },
-    {
-      args: [0.5, 32, 32],
-      position: [-14, -10, 14],
-      color: "cyan",
-    },
-    {
-      args: [0.5, 32, 32],
-      position: [14, -10, 14],
-      color: "magenta",
+      args: [1, 16, 16],
+      position: [3, 3, 3],
+      color: "blue",
     },
   ];
 
-  const planeCoordinates = [
-    {
-      args: [28, 28],
-      position: [0, 0, -14],
-      rotation: [0, Math.PI, 0],
-      material: {
-        color: "green",
-        transparent: true,
-        opacity: 0.7,
-        side: THREE.DoubleSide,
-      },
-    },
-    {
-      args: [28, 28],
-      position: [0, 10, 0],
-      rotation: [-Math.PI / 2, 0, 0],
-      material: {
-        transparent: true,
-        opacity: 0.3,
-        side: THREE.DoubleSide,
-      },
-    },
-    {
-      args: [28, 28],
-      position: [0, -10, 0],
-      rotation: [Math.PI / 2, 0, 0],
-      material: {
-        transparent: true,
-        opacity: 0.7,
-        side: THREE.DoubleSide,
-      },
-    },
-    {
-      args: [28, 28],
-      position: [-14, 0, 0],
-      rotation: [0, Math.PI / 2, 0],
-      material: {
-        color: "lightgreen",
-        transparent: true,
-        opacity: 0.7,
-        side: THREE.DoubleSide,
-      },
-    },
-    {
-      args: [28, 28],
-      position: [14, 0, 0],
-      rotation: [0, -Math.PI / 2, 0],
-      material: {
-        color: "lightgreen",
-        transparent: true,
-        opacity: 0.7,
-        side: THREE.DoubleSide,
-      },
-    },
-    {
-      args: [28, 28],
-      position: [0, 0, 14],
-      rotation: [0, 0, 0],
-      material: {
-        transparent: true,
-        opacity: 0.3,
-        side: THREE.DoubleSide,
-      },
-    },
-  ];
   return (
     <>
-      {sphereCoordinates.map((sphere, index) => (
-        <Sphere args={sphere?.args} position={sphere.position} key={index}>
+      {buildSphere.map((sphere, index) => (
+        <Sphere
+          args={sphere.args as sphereArgs}
+          position={sphere.position as spherePosition}
+          key={index}
+        >
           <meshStandardMaterial color={sphere.color} />
         </Sphere>
-        //handle undefined
-      ))}
-      {planeCoordinates.map((plane, index) => (
-        <Plane args={plane.args} position={plane.position} key={index}>
-          <meshStandardMaterial
-            color={plane?.material?.color}
-            transparent={true}
-            opacity={0.1}
-          />
-        </Plane>
         //handle undefined
       ))}
     </>

@@ -1,13 +1,33 @@
 import { Bumper } from "@prisma/client";
 import prisma from "../../lib/prisma";
 
-export const dynamic = "force-dynamic"; // defaults to auto
-export async function GET(request: Request) {
+/*
+const testBumper: Bumper = {
+  id: 1,
+  args: [1, 2, 3],
+  position: [1, 2, 3],
+  color: "red",
+};
+*/
+
+export const GET = (request: Request) => {
+  return prisma.bumper
+    .findMany()
+    .then((bumpers) => new Response(JSON.stringify(bumpers)));
+};
+
+/* 
+
+The equivalent function, but with Async Await
+
+export const GET = async (request: Request) => {
   const bumpers = await prisma.bumper.findMany();
   return new Response(JSON.stringify(bumpers));
-}
+};
 
-export async function POST(request: Request) {
+*/
+
+export const POST = async (request: Request) => {
   const res = await request.json();
 
   const bumper = await prisma.bumper.create({
@@ -19,6 +39,19 @@ export async function POST(request: Request) {
   });
 
   return new Response("POST Request recieved");
-}
+};
 
 export type BumperResponse = Bumper;
+
+/*
+
+Why alias Bumper?
+
+The same as 
+export type {Bumper};
+
+export const GET = async (request: Request) => {
+  const bumpers = await prisma.bumper.findMany();
+  return new Response(JSON.stringify(bumpers));
+};
+*/
