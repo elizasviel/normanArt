@@ -11,9 +11,9 @@ const testBumper: Bumper = {
 */
 
 export const GET = (request: Request) => {
-  return prisma.bumper
-    .findMany()
-    .then((bumpers) => new Response(JSON.stringify(bumpers)));
+  return prisma.bumper.findMany().then((bumpers) => {
+    return new Response(JSON.stringify(bumpers));
+  });
 };
 
 /* 

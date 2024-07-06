@@ -25,6 +25,7 @@ export const Controller = ({ setData }: any) => {
               return response.json();
             })
             .then((data) => {
+              console.log(data);
               setData(data); // this will be a json
             });
         }}

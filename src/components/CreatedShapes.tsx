@@ -11,7 +11,7 @@ type sphereArgs = [
   thetaStart?: number | undefined,
   thetaLength?: number | undefined
 ];
-type spherePosition = [x: number, y: number, z: number];
+type spherePosition = [y: number, z: number, x: number];
 
 type SpheresProps = {
   data: CanvasData;
