@@ -9,6 +9,7 @@ import { Controller } from "../components/Controller";
 import { Player } from "../components/Player";
 import { CameraControls, Sphere, KeyboardControls } from "@react-three/drei";
 import { Bumper } from "@prisma/client";
+import { Creator } from "@/components/Creator";
 
 //"&" creates a "intersection" type
 //"|" creates a "union" type
@@ -16,6 +17,8 @@ import { Bumper } from "@prisma/client";
 //By adding the args and position properties
 
 export type CanvasData = Bumper[] | null;
+
+//This is a React Three Fiber component
 
 const BallPit = () => {
   const [data, setData] = useState<CanvasData>(null);
@@ -26,10 +29,10 @@ const BallPit = () => {
 
       <KeyboardControls
         map={[
-          { name: "forward", keys: ["ArrowUp", "w", "W"] },
-          { name: "backward", keys: ["ArrowDown", "s", "S"] },
-          { name: "left", keys: ["ArrowLeft", "a", "A"] },
-          { name: "right", keys: ["ArrowRight", "d", "D"] },
+          { name: "forward", keys: ["w", "W"] },
+          { name: "backward", keys: ["s", "S"] },
+          { name: "left", keys: ["a", "A"] },
+          { name: "right", keys: ["d", "D"] },
         ]}
       >
         <Canvas
@@ -55,7 +58,10 @@ const BallPit = () => {
           <ambientLight intensity={Math.PI / 2} />
           <CameraControls />
 
+          {/* This part made possible by Rapier Physics */}
+
           <Suspense>
+            <Creator />
             <Physics interpolate={true} gravity={[0, -9.81, 0]} debug>
               <Player />
               <RigidBody>
@@ -71,6 +77,8 @@ const BallPit = () => {
                 <BuiltInShapes />
               </RigidBody>
             </Physics>
+
+            {/* End of Rapier Physics */}
           </Suspense>
         </Canvas>
       </KeyboardControls>
