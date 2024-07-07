@@ -1,14 +1,4 @@
-import { Bumper } from "@prisma/client";
 import prisma from "../../lib/prisma";
-
-/*
-const testBumper: Bumper = {
-  id: 1,
-  args: [1, 2, 3],
-  position: [1, 2, 3],
-  color: "red",
-};
-*/
 
 export const GET = (request: Request) => {
   return prisma.bumper.findMany().then((bumpers) => {
@@ -28,20 +18,24 @@ export const GET = async (request: Request) => {
 */
 
 export const POST = async (request: Request) => {
-  const res = await request.json();
+  const req = await request.json();
 
-  const bumper = await prisma.bumper.create({
-    data: {
-      args: res.args, //somehow rounds to zero
-      position: res.position,
-      color: res.color,
-    },
-  });
+  if (req === "remove") {
+    await prisma.bumper.deleteMany();
+  } else {
+    const bumper = await prisma.bumper.create({
+      data: {
+        args: req.args, //somehow rounds to zero
+        position: req.position,
+        color: req.color,
+      },
+    });
+  }
 
-  return new Response("POST Request recieved");
+  const bumpers = await prisma.bumper.findMany();
+
+  return new Response(JSON.stringify(bumpers));
 };
-
-export type BumperResponse = Bumper;
 
 /*
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Sphere } from "@react-three/drei";
 
-export const Creator = () => {
+export const Creator = ({ setData }: { setData: any }) => {
   const [Y, setY] = useState(0);
   const [Z, setZ] = useState(0);
   const [X, setX] = useState(0);
@@ -14,7 +14,6 @@ export const Creator = () => {
   //Adds a event listener to the window
   //How would the Window even know about X Y and Z?
   useEffect(() => {
-    console.log("setUpListener");
     window.addEventListener("keydown", (event) => {
       switch (event.key) {
         case "ArrowUp":
@@ -35,6 +34,11 @@ export const Creator = () => {
         case " ":
           setZ((prev) => prev - 1);
           break;
+        case "Shift":
+          if (event.code === "ShiftRight") {
+            setZ((prev) => prev + 1);
+          }
+          break;
         case "Enter":
           fetch("http://localhost:3000/api", {
             method: "POST",
@@ -43,12 +47,14 @@ export const Creator = () => {
               position: currentCoordinatValuesRef.current,
               color: "lightgreen",
             }),
-          });
-          break;
-        default:
-          if (event.code === "ShiftRight") {
-            setZ((prev) => prev + 1);
-          }
+          })
+            .then((response) => {
+              return response.json();
+            })
+            .then((data) => {
+              console.log(data);
+              setData(data); // this will be a json
+            });
           break;
       }
       console.log(currentCoordinatValuesRef.current);
