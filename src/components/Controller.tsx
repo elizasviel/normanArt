@@ -25,11 +25,30 @@ export const Controller = ({ setData }: any) => {
               return response.json();
             })
             .then((data) => {
+              console.log(data);
               setData(data); // this will be a json
             });
         }}
       >
         Get Bumpers
+      </button>
+
+      <button
+        onClick={() => {
+          fetch("http://localhost:3000/api", {
+            method: "POST",
+            body: JSON.stringify("remove"),
+          })
+            .then((response) => {
+              return response.json();
+            })
+            .then((data) => {
+              console.log(data);
+              setData(data); // this will be a json
+            });
+        }}
+      >
+        Delete Bumpers
       </button>
 
       <button
@@ -67,3 +86,6 @@ export const Controller = ({ setData }: any) => {
     </div>
   );
 };
+
+//even though the spheres are indeed being created, I think they may be missing a collider
+//i.e. when user hits return, console logs on "creator" and "ballpit" and "createdShapes" are correct

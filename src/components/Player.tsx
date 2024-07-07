@@ -10,21 +10,21 @@ const frontVector = new THREE.Vector3();
 const sideVector = new THREE.Vector3();
 
 export function Player() {
-  const ref = useRef();
+  const ref = useRef<any>();
   const [, get] = useKeyboardControls();
   useFrame((state) => {
     const { forward, backward, left, right } = get();
-    const velocity = ref.current.linvel();
+    const velocity = ref.current?.linvel();
 
     // movement
-    frontVector.set(0, 0, backward - forward);
-    sideVector.set(left - right, 0, 0);
+    frontVector.set(0, 0, Number(backward) - Number(forward));
+    sideVector.set(Number(left) - Number(right), 0, 0);
     direction
       .subVectors(frontVector, sideVector)
       .normalize()
       .multiplyScalar(SPEED)
       .applyEuler(state.camera.rotation);
-    ref.current.setLinvel({ x: direction.x, y: velocity.y, z: direction.z });
+    ref.current?.setLinvel({ x: direction.x, y: velocity.y, z: direction.z });
   });
   return (
     <>
@@ -35,7 +35,7 @@ export function Player() {
         position={[0, 50, 0]}
         enabledRotations={[false, false, false]}
       >
-        <CapsuleCollider args={[0.75, 0.5]} />
+        <CapsuleCollider args={[5, 2]} />
       </RigidBody>
     </>
   );
