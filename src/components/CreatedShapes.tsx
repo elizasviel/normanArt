@@ -1,7 +1,7 @@
 import React from "react";
 import { Sphere } from "@react-three/drei";
 import { CanvasData } from "@/components/BallPit";
-import { BallCollider, CuboidCollider, RigidBody } from "@react-three/rapier";
+import { RigidBody } from "@react-three/rapier";
 
 type sphereArgs = [
   radius?: number | undefined,
@@ -23,13 +23,13 @@ const Spheres = ({ data }: SpheresProps) => {
   return (
     <>
       {data?.map((bumper, index) => (
-        <BallCollider
-          args={[1]}
+        <Sphere
+          args={bumper.args as sphereArgs}
           position={bumper.position as spherePosition}
           key={index}
         >
           <meshStandardMaterial />
-        </BallCollider>
+        </Sphere>
       ))}
     </>
   );
@@ -40,5 +40,9 @@ type CreatedShapesProps = {
 };
 
 export const CreatedShapes = ({ data }: CreatedShapesProps) => {
-  return <Spheres data={data} />;
+  return (
+    <RigidBody colliders="hull" restitution={1} type="fixed">
+      <Spheres data={data} />;
+    </RigidBody>
+  );
 };

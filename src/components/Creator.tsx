@@ -57,6 +57,7 @@ export const Creator = ({ setData }: { setData: any }) => {
             });
           break;
       }
+      console.log(currentCoordinatValuesRef.current);
     });
   }, []);
 
