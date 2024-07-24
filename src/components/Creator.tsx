@@ -52,12 +52,10 @@ export const Creator = ({ setData }: { setData: any }) => {
               return response.json();
             })
             .then((data) => {
-              console.log(data);
               setData(data); // this will be a json
             });
           break;
       }
-      console.log(currentCoordinatValuesRef.current);
     });
   }, []);
 
