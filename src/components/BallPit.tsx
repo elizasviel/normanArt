@@ -7,14 +7,7 @@ import { BuiltInShapes } from "./BuiltInShapes";
 import { CreatedShapes } from "./CreatedShapes";
 import { Controller } from "./Controller";
 import { Player } from "./Player";
-import { Plane } from "@react-three/drei";
-import {
-  CameraControls,
-  Sphere,
-  KeyboardControls,
-  PerspectiveCamera,
-  PointerLockControls,
-} from "@react-three/drei";
+import { CameraControls, Sphere, KeyboardControls } from "@react-three/drei";
 import { Bumper } from "@prisma/client";
 import { Creator } from "./Creator";
 
@@ -56,13 +49,27 @@ const BallPit = () => {
         ]}
       >
         <Canvas
+          camera={{ position: [60, 20, 20], fov: 80 }}
           style={{
             width: window.innerWidth,
             height: window.innerHeight,
             backgroundColor: "steelblue",
           }}
         >
+          <spotLight
+            position={[10, 10, 10]}
+            angle={0.15}
+            penumbra={1}
+            decay={0}
+            intensity={Math.PI}
+          />
+          <pointLight
+            position={[-10, -10, -10]}
+            decay={0}
+            intensity={Math.PI}
+          />
           <ambientLight intensity={Math.PI / 2} />
+          <CameraControls />
 
           {/* This part made possible by Rapier Physics */}
 
@@ -71,22 +78,22 @@ const BallPit = () => {
             {/* When user presses the return key, sends a post request to the server and sets data equal to the response */}
             {/* CreatedShapes uses the data, so should work with physics. However, it could be the case that re renders
             not happening here*/}
-            <Physics interpolate={false} gravity={[0, -9.81, 0]} debug>
-              <Creator setData={setData} />
-              <RigidBody colliders="hull" restitution={0} ccd={true}>
-                <Player></Player>
+            <Creator setData={setData} />
+            <Physics interpolate={true} gravity={[0, -9.81, 0]} debug>
+              {/* <Player /> is a capsule also controlled by keyboard inputs */}
+              <Player />
+              <RigidBody>
+                <Sphere args={[1, 100, 100]} position={[0, 0, 0]} />
               </RigidBody>
               <RigidBody
+                //shared starting position that can be overwritten by children
                 colliders="hull"
                 restitution={1}
                 type="fixed"
-                mass={0}
-                ccd={true}
               >
-                <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
-                  <planeGeometry args={[100, 100]} />
-                  <meshStandardMaterial color={"gray"} />
-                </mesh>
+                {/* <CreatedShapes /> are user created spheres */}
+                <CreatedShapes data={data} />
+                <BuiltInShapes />
               </RigidBody>
             </Physics>
             {/* End of Rapier Physics */}
