@@ -7,14 +7,7 @@ import { BuiltInShapes } from "./BuiltInShapes";
 import { CreatedShapes } from "./CreatedShapes";
 import { Controller } from "./Controller";
 import { Player } from "./Player";
-import { Plane } from "@react-three/drei";
-import {
-  CameraControls,
-  Sphere,
-  KeyboardControls,
-  PerspectiveCamera,
-  PointerLockControls,
-} from "@react-three/drei";
+import { KeyboardControls } from "@react-three/drei";
 import { Bumper } from "@prisma/client";
 import { Creator } from "./Creator";
 
@@ -73,14 +66,14 @@ const BallPit = () => {
             not happening here*/}
             <Physics interpolate={false} gravity={[0, -9.81, 0]} debug>
               <Creator setData={setData} />
-              <RigidBody colliders="hull" restitution={0} ccd={true}>
-                <Player></Player>
-              </RigidBody>
+
+              <Player></Player>
+              <CreatedShapes data={data} />
+
               <RigidBody
                 colliders="hull"
                 restitution={1}
                 type="fixed"
-                mass={0}
                 ccd={true}
               >
                 <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
