@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import React from "react";
-import { Sphere } from "@react-three/drei";
+import { Plane, Sphere } from "@react-three/drei";
 
 type sphereArgs = [
   radius?: number | undefined,
@@ -22,7 +22,7 @@ export const BuiltInShapes = () => {
     },
     {
       args: [1, 16, 16],
-      position: [0, 0, 0],
+      position: [4, 0, 0],
       color: "green",
     },
     {
@@ -44,6 +44,9 @@ export const BuiltInShapes = () => {
         </Sphere>
         //handle undefined
       ))}
+      <Plane args={[100, 100]} position={[0, 0, 0]}>
+        <meshStandardMaterial color={"gray"} />
+      </Plane>
     </>
   );
 };
