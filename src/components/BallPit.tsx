@@ -70,14 +70,12 @@ const BallPit = () => {
             {/* CreatedShapes uses the data, so should work with physics. However, it could be the case that re renders
             not happening here*/}
             <Physics interpolate={false} gravity={[0, -9.81, 0]} debug>
-              <Creator setData={setData} />
-
               <Player clicked={clicked} setClicked={setClicked}></Player>
               <RigidBody
                 colliders="hull"
                 restitution={0}
                 mass={0.2}
-                position={[2, 0, 0]}
+                position={[4, 0, 0]}
               >
                 <mesh>
                   <boxGeometry args={[1, 1, 1]} />
@@ -107,7 +105,7 @@ const BallPit = () => {
                   position={[0, -2, 0]}
                   rotation={[(3 * Math.PI) / 2, 0, 0]}
                 >
-                  <planeGeometry args={[10, 10]} />
+                  <planeGeometry args={[30, 30]} />
                   <meshStandardMaterial color="gray" />
                 </mesh>
               </RigidBody>

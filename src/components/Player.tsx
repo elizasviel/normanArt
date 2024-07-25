@@ -1,4 +1,9 @@
-import { RigidBody, useRopeJoint } from "@react-three/rapier";
+import {
+  RigidBody,
+  useFixedJoint,
+  useRevoluteJoint,
+  useSphericalJoint,
+} from "@react-three/rapier";
 import { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import {
@@ -23,17 +28,27 @@ export function Player({
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   const controlsRef = useRef<any>(null);
   const currentRotation = useRef(new THREE.Quaternion(0, 0, 0, 1));
+  const weaponLock = useRef(false);
 
   const [, get] = useKeyboardControls();
   const { camera } = useThree();
 
+  const playerWeaponJoint = useRevoluteJoint(ref, weaponRef, [
+    [0, 0, 0],
+    [0, 0, 4],
+    [0, 1, 0],
+  ]);
+
   useFrame((state, delta) => {
+    //check for key presses
     const { forward, backward, left, right, space } = get();
 
+    //get the current velocity of the player
     const velocity = ref.current?.linvel();
 
-    // Get camera direction
+    //get camera orientation
     const cameraQuaternion = camera.quaternion;
+    //get camera direction
     const cameraDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(
       cameraQuaternion
     );
@@ -98,20 +113,16 @@ export function Player({
       controlsRef.current.update();
     }
 
-    if (clicked) {
-      console.log(weaponRef.current.position);
+    /*if (clicked) {
+      playerWeaponJoint.current?.configureMotorVelocity(5, 0);
       setClicked(false);
     }
+      */
   });
 
   return (
     <>
-      <PerspectiveCamera
-        ref={cameraRef}
-        makeDefault
-        position={[0, 5, 5]}
-        fov={75}
-      />
+      <PerspectiveCamera ref={cameraRef} makeDefault fov={75} />
       <OrbitControls
         ref={controlsRef}
         camera={camera}
@@ -125,22 +136,26 @@ export function Player({
           colliders="hull"
           restitution={0}
           ccd={true}
-          ref={ref}
-          enabledRotations={[false, true, false]}
+          ref={weaponRef}
+          dominanceGroup={1}
         >
-          <mesh ref={weaponRef}>
+          <mesh>
             <boxGeometry args={[0.2, 0.2, 0.2]} />
             <meshStandardMaterial color="pink" />
           </mesh>
         </RigidBody>
+
         <RigidBody
+          lockRotations={true}
+          lockTranslations={true}
           colliders="hull"
           restitution={0}
           ccd={true}
           ref={ref}
           enabledRotations={[false, true, false]}
+          dominanceGroup={1}
         >
-          <mesh ref={ref}>
+          <mesh>
             <boxGeometry args={[1, 1, 1]} />
             <meshStandardMaterial color="pink" attach="material-0" />{" "}
             {/* Right face */}
@@ -160,3 +175,18 @@ export function Player({
     </>
   );
 }
+
+/*
+    <RigidBody
+            colliders="hull"
+            restitution={0}
+            ccd={true}
+            ref={weaponHelperRef}
+          >
+    <mesh>
+              <sphereGeometry args={[1.5]} />
+              <meshStandardMaterial color="pink" />
+            </mesh>
+          </RigidBody>
+
+*/
