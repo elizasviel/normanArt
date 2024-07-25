@@ -1,8 +1,11 @@
-import { RigidBody } from "@react-three/rapier";
-
+import {
+  RigidBody,
+  useFixedJoint,
+  useRevoluteJoint,
+  useSphericalJoint,
+} from "@react-three/rapier";
 import { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-
 import {
   useKeyboardControls,
   PerspectiveCamera,
@@ -13,22 +16,39 @@ import * as THREE from "three";
 const SPEED = 5;
 const direction = new THREE.Vector3();
 
-export function Player() {
+export function Player({
+  clicked,
+  setClicked,
+}: {
+  clicked: boolean;
+  setClicked: (clicked: boolean) => void;
+}) {
   const ref = useRef<any>();
+  const weaponRef = useRef<any>();
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   const controlsRef = useRef<any>(null);
   const currentRotation = useRef(new THREE.Quaternion(0, 0, 0, 1));
+  const weaponLock = useRef(false);
 
   const [, get] = useKeyboardControls();
   const { camera } = useThree();
 
+  const playerWeaponJoint = useRevoluteJoint(ref, weaponRef, [
+    [0, 0, 0],
+    [0, 0, 4],
+    [0, 1, 0],
+  ]);
+
   useFrame((state, delta) => {
+    //check for key presses
     const { forward, backward, left, right, space } = get();
 
+    //get the current velocity of the player
     const velocity = ref.current?.linvel();
 
-    // Get camera direction
+    //get camera orientation
     const cameraQuaternion = camera.quaternion;
+    //get camera direction
     const cameraDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(
       cameraQuaternion
     );
@@ -92,16 +112,17 @@ export function Player() {
       );
       controlsRef.current.update();
     }
+
+    /*if (clicked) {
+      playerWeaponJoint.current?.configureMotorVelocity(5, 0);
+      setClicked(false);
+    }
+      */
   });
 
   return (
     <>
-      <PerspectiveCamera
-        ref={cameraRef}
-        makeDefault
-        position={[0, 5, 5]}
-        fov={75}
-      />
+      <PerspectiveCamera ref={cameraRef} makeDefault fov={75} />
       <OrbitControls
         ref={controlsRef}
         camera={camera}
@@ -109,29 +130,63 @@ export function Player() {
         minDistance={7}
         maxDistance={7}
       />
-      <RigidBody
-        colliders="hull"
-        restitution={0}
-        ccd={true}
-        ref={ref}
-        enabledRotations={[false, true, false]}
-      >
-        <mesh position={[0, 3, 0]}>
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color="pink" attach="material-0" />{" "}
-          {/* Right face */}
-          <meshStandardMaterial color="green" attach="material-1" />{" "}
-          {/* Left face */}
-          <meshStandardMaterial color="blue" attach="material-2" />{" "}
-          {/* Top face */}
-          <meshStandardMaterial color="yellow" attach="material-3" />{" "}
-          {/* Bottom face */}
-          <meshStandardMaterial color="purple" attach="material-4" />{" "}
-          {/* Front face */}
-          <meshStandardMaterial color="orange" attach="material-5" />{" "}
-          {/* Back face */}
-        </mesh>
-      </RigidBody>
+
+      <group>
+        <RigidBody
+          colliders="hull"
+          restitution={0}
+          ccd={true}
+          ref={weaponRef}
+          dominanceGroup={1}
+        >
+          <mesh>
+            <boxGeometry args={[0.2, 0.2, 0.2]} />
+            <meshStandardMaterial color="pink" />
+          </mesh>
+        </RigidBody>
+
+        <RigidBody
+          lockRotations={true}
+          lockTranslations={true}
+          colliders="hull"
+          restitution={0}
+          ccd={true}
+          ref={ref}
+          enabledRotations={[false, true, false]}
+          dominanceGroup={1}
+        >
+          <mesh>
+            <boxGeometry args={[1, 1, 1]} />
+            <meshStandardMaterial color="pink" attach="material-0" />{" "}
+            {/* Right face */}
+            <meshStandardMaterial color="green" attach="material-1" />{" "}
+            {/* Left face */}
+            <meshStandardMaterial color="blue" attach="material-2" />{" "}
+            {/* Top face */}
+            <meshStandardMaterial color="yellow" attach="material-3" />{" "}
+            {/* Bottom face */}
+            <meshStandardMaterial color="purple" attach="material-4" />{" "}
+            {/* Front face */}
+            <meshStandardMaterial color="orange" attach="material-5" />{" "}
+            {/* Back face */}
+          </mesh>
+        </RigidBody>
+      </group>
     </>
   );
 }
+
+/*
+    <RigidBody
+            colliders="hull"
+            restitution={0}
+            ccd={true}
+            ref={weaponHelperRef}
+          >
+    <mesh>
+              <sphereGeometry args={[1.5]} />
+              <meshStandardMaterial color="pink" />
+            </mesh>
+          </RigidBody>
+
+*/
