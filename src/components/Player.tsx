@@ -1,8 +1,11 @@
-import { PerspectiveCamera, PointerLockControls } from "@react-three/drei";
 import { RigidBody } from "@react-three/rapier";
 import { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useKeyboardControls } from "@react-three/drei";
+import {
+  useKeyboardControls,
+  PerspectiveCamera,
+  PointerLockControls,
+} from "@react-three/drei";
 import * as THREE from "three";
 
 const SPEED = 5;
@@ -12,10 +15,14 @@ const sideVector = new THREE.Vector3();
 
 export function Player() {
   const ref = useRef<any>();
-  const [lastRotation, setLastRotation] = useState({ x: 0, y: 0, z: 0, w: 1 });
+  const currentRotation = useRef(new THREE.Quaternion(0, 0, 0, 1));
+  const targetRotation = useRef(new THREE.Quaternion(0, 0, 0, 1));
+  const cameraRef = useRef<THREE.PerspectiveCamera>(null);
+  const cameraPosition = useRef(new THREE.Vector3(0, 5, 5));
+
   const [, get] = useKeyboardControls();
-  useFrame((state) => {
-    const { forward, backward, left, right } = get();
+  useFrame((state, delta) => {
+    const { forward, backward, left, right, space } = get();
 
     const velocity = ref.current?.linvel();
 
@@ -27,52 +34,76 @@ export function Player() {
 
     direction.subVectors(frontVector, sideVector).normalize();
 
-    let rotationQuaternion = lastRotation; // Default: no rotation
+    if (frontVector.length() > 0 || sideVector.length() > 0) {
+      let rotationQuaternion = new THREE.Quaternion();
 
-    switch (true) {
-      // Forward
-      case frontVector.z < 0 && sideVector.x === 0:
-        rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-        break;
-      // Backward (180 degrees)
-      case frontVector.z > 0 && sideVector.x === 0:
-        rotationQuaternion = { x: 0, y: 1, z: 0, w: 0 };
-        break;
-      // Right
-      case sideVector.x < 0 && frontVector.z === 0:
-        rotationQuaternion = { x: 0, y: -0.7071068, z: 0, w: 0.7071068 };
-        break;
-      // Left
-      case sideVector.x > 0 && frontVector.z === 0:
-        rotationQuaternion = { x: 0, y: 0.7071068, z: 0, w: 0.7071068 };
-        break;
-      // Diagonal: Forward-Right
-      case frontVector.z < 0 && sideVector.x < 0:
-        rotationQuaternion = { x: 0, y: -0.3826834, z: 0, w: 0.9238795 };
-        break;
-      // Diagonal: Forward-Left
-      case frontVector.z < 0 && sideVector.x > 0:
-        rotationQuaternion = { x: 0, y: 0.3826834, z: 0, w: 0.9238795 };
-        break;
-      // Diagonal: Backward-Right
-      case frontVector.z > 0 && sideVector.x < 0:
-        rotationQuaternion = { x: 0, y: -0.9238795, z: 0, w: 0.3826834 };
-        break;
-      // Diagonal: Backward-Left
-      case frontVector.z > 0 && sideVector.x > 0:
-        rotationQuaternion = { x: 0, y: 0.9238795, z: 0, w: 0.3826834 };
-        break;
+      switch (true) {
+        // Forward
+        case frontVector.z < 0 && sideVector.x === 0:
+          rotationQuaternion.setFromEuler(new THREE.Euler(0, 0, 0));
+          break;
+        // Backward (180 degrees)
+        case frontVector.z > 0 && sideVector.x === 0:
+          rotationQuaternion.setFromEuler(new THREE.Euler(0, Math.PI, 0));
+          break;
+        // Right
+        case sideVector.x < 0 && frontVector.z === 0:
+          rotationQuaternion.setFromEuler(new THREE.Euler(0, -Math.PI / 2, 0));
+          break;
+        // Left
+        case sideVector.x > 0 && frontVector.z === 0:
+          rotationQuaternion.setFromEuler(new THREE.Euler(0, Math.PI / 2, 0));
+          break;
+        // Diagonal: Forward-Right
+        case frontVector.z < 0 && sideVector.x < 0:
+          rotationQuaternion.setFromEuler(new THREE.Euler(0, -Math.PI / 4, 0));
+          break;
+        // Diagonal: Forward-Left
+        case frontVector.z < 0 && sideVector.x > 0:
+          rotationQuaternion.setFromEuler(new THREE.Euler(0, Math.PI / 4, 0));
+          break;
+        // Diagonal: Backward-Right
+        case frontVector.z > 0 && sideVector.x < 0:
+          rotationQuaternion.setFromEuler(new THREE.Euler(0, -Math.PI / 4, 0));
+          break;
+        // Diagonal: Backward-Left
+        case frontVector.z > 0 && sideVector.x > 0:
+          rotationQuaternion.setFromEuler(new THREE.Euler(0, Math.PI / 4, 0));
+          break;
+      }
+
+      targetRotation.current.copy(rotationQuaternion);
+
+      currentRotation.current.slerp(targetRotation.current, 5 * delta);
+
+      ref.current?.setRotation(currentRotation.current);
     }
 
-    setLastRotation(rotationQuaternion);
-    ref.current?.setRotation(rotationQuaternion);
+    if (ref.current && cameraRef.current) {
+      const playerPosition = ref.current.translation();
+      cameraPosition.current.set(
+        playerPosition.x,
+        playerPosition.y + 3,
+        playerPosition.z + 3
+      );
+      cameraRef.current.position.lerp(cameraPosition.current, 0.1);
+      cameraRef.current.lookAt(
+        playerPosition.x,
+        playerPosition.y + 3,
+        playerPosition.z
+      );
+    }
 
     // Log rotation for debugging
-    console.log("Rotation:", ref.current?.rotation());
+    //console.log("Rotation:", ref.current?.rotation());
 
     //direction is also a vector 3
     //I think subvectors takes two vectors and does something
     //multiplyScar multiples vectors by speed
+
+    if (space) {
+      velocity.y = 3;
+    }
 
     ref.current?.setLinvel(
       { x: direction.x, y: velocity.y, z: direction.z },
@@ -82,6 +113,12 @@ export function Player() {
 
   return (
     <>
+      <PerspectiveCamera
+        ref={cameraRef}
+        makeDefault
+        fov={75}
+      ></PerspectiveCamera>
+
       <RigidBody
         colliders="hull"
         restitution={0}
@@ -90,7 +127,7 @@ export function Player() {
         enabledRotations={[false, true, false]}
       >
         <mesh position={[0, 3, 0]}>
-          <boxGeometry args={[1, 2, 2]} />
+          <boxGeometry args={[1, 1, 1]} />
           <meshStandardMaterial color="gray" attach="material-0" />{" "}
           {/* Right face */}
           <meshStandardMaterial color="green" attach="material-1" />{" "}
@@ -108,3 +145,8 @@ export function Player() {
     </>
   );
 }
+
+/*
+
+
+*/

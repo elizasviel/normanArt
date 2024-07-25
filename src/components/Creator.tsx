@@ -31,9 +31,7 @@ export const Creator = ({ setData }: { setData: any }) => {
         case "ArrowRight":
           setX((prev) => prev - 1);
           break;
-        case " ":
-          setZ((prev) => prev - 1);
-          break;
+
         case "Shift":
           if (event.code === "ShiftRight") {
             setZ((prev) => prev + 1);
