@@ -3,6 +3,7 @@
 import React, { useState, Suspense, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Physics, RigidBody } from "@react-three/rapier";
+import { PerspectiveCamera } from "@react-three/drei";
 import { BuiltInShapes } from "./BuiltInShapes";
 import { CreatedShapes } from "./CreatedShapes";
 import { Controller } from "./Controller";
@@ -46,6 +47,7 @@ const BallPit = () => {
           { name: "backward", keys: ["s", "S"] },
           { name: "left", keys: ["a", "A"] },
           { name: "right", keys: ["d", "D"] },
+          { name: "space", keys: [" "] },
         ]}
       >
         <Canvas
@@ -76,7 +78,7 @@ const BallPit = () => {
                 type="fixed"
                 ccd={true}
               >
-                <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+                <mesh position={[0, -2, 0]} rotation={[Math.PI / 2, 0, 0]}>
                   <planeGeometry args={[100, 100]} />
                   <meshStandardMaterial color={"gray"} />
                 </mesh>
@@ -93,3 +95,4 @@ const BallPit = () => {
 export default BallPit;
 
 //perhaps make new colliders
+//orbit controls
