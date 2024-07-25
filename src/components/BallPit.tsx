@@ -21,8 +21,7 @@ const BallPit = () => {
   //This is the state that is used to store the data from the database
   //The data is passed into the Creator and CreatedShapes components
   const [data, setData] = useState<CanvasData>(null);
-
-  console.log(data);
+  const [clicked, setClicked] = useState(false);
 
   //This is the useEffect hook that is used to fetch the data from the database
   //It triggers only once, when the component mounts
@@ -56,6 +55,9 @@ const BallPit = () => {
             height: window.innerHeight,
             backgroundColor: "steelblue",
           }}
+          onClick={() => {
+            setClicked(true);
+          }}
         >
           <ambientLight intensity={Math.PI / 2} />
           <pointLight intensity={1} position={[0, 5, 0]} />
@@ -70,7 +72,29 @@ const BallPit = () => {
             <Physics interpolate={false} gravity={[0, -9.81, 0]} debug>
               <Creator setData={setData} />
 
-              <Player></Player>
+              <Player clicked={clicked} setClicked={setClicked}></Player>
+              <RigidBody
+                colliders="hull"
+                restitution={0}
+                mass={0.2}
+                position={[2, 0, 0]}
+              >
+                <mesh>
+                  <boxGeometry args={[1, 1, 1]} />
+                  <meshStandardMaterial color="lightblue" />
+                </mesh>
+              </RigidBody>
+              <RigidBody
+                colliders="hull"
+                restitution={0}
+                mass={0.2}
+                position={[-2, 0, 0]}
+              >
+                <mesh>
+                  <sphereGeometry args={[0.25]} />
+                  <meshStandardMaterial color="lightgreen" />
+                </mesh>
+              </RigidBody>
               <CreatedShapes data={data} />
 
               <RigidBody

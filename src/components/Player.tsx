@@ -1,8 +1,6 @@
-import { RigidBody } from "@react-three/rapier";
-
+import { RigidBody, useRopeJoint } from "@react-three/rapier";
 import { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-
 import {
   useKeyboardControls,
   PerspectiveCamera,
@@ -13,8 +11,15 @@ import * as THREE from "three";
 const SPEED = 5;
 const direction = new THREE.Vector3();
 
-export function Player() {
+export function Player({
+  clicked,
+  setClicked,
+}: {
+  clicked: boolean;
+  setClicked: (clicked: boolean) => void;
+}) {
   const ref = useRef<any>();
+  const weaponRef = useRef<any>();
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   const controlsRef = useRef<any>(null);
   const currentRotation = useRef(new THREE.Quaternion(0, 0, 0, 1));
@@ -92,6 +97,11 @@ export function Player() {
       );
       controlsRef.current.update();
     }
+
+    if (clicked) {
+      console.log(weaponRef.current.position);
+      setClicked(false);
+    }
   });
 
   return (
@@ -109,29 +119,44 @@ export function Player() {
         minDistance={7}
         maxDistance={7}
       />
-      <RigidBody
-        colliders="hull"
-        restitution={0}
-        ccd={true}
-        ref={ref}
-        enabledRotations={[false, true, false]}
-      >
-        <mesh position={[0, 3, 0]}>
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color="pink" attach="material-0" />{" "}
-          {/* Right face */}
-          <meshStandardMaterial color="green" attach="material-1" />{" "}
-          {/* Left face */}
-          <meshStandardMaterial color="blue" attach="material-2" />{" "}
-          {/* Top face */}
-          <meshStandardMaterial color="yellow" attach="material-3" />{" "}
-          {/* Bottom face */}
-          <meshStandardMaterial color="purple" attach="material-4" />{" "}
-          {/* Front face */}
-          <meshStandardMaterial color="orange" attach="material-5" />{" "}
-          {/* Back face */}
-        </mesh>
-      </RigidBody>
+
+      <group>
+        <RigidBody
+          colliders="hull"
+          restitution={0}
+          ccd={true}
+          ref={ref}
+          enabledRotations={[false, true, false]}
+        >
+          <mesh ref={weaponRef}>
+            <boxGeometry args={[0.2, 0.2, 0.2]} />
+            <meshStandardMaterial color="pink" />
+          </mesh>
+        </RigidBody>
+        <RigidBody
+          colliders="hull"
+          restitution={0}
+          ccd={true}
+          ref={ref}
+          enabledRotations={[false, true, false]}
+        >
+          <mesh ref={ref}>
+            <boxGeometry args={[1, 1, 1]} />
+            <meshStandardMaterial color="pink" attach="material-0" />{" "}
+            {/* Right face */}
+            <meshStandardMaterial color="green" attach="material-1" />{" "}
+            {/* Left face */}
+            <meshStandardMaterial color="blue" attach="material-2" />{" "}
+            {/* Top face */}
+            <meshStandardMaterial color="yellow" attach="material-3" />{" "}
+            {/* Bottom face */}
+            <meshStandardMaterial color="purple" attach="material-4" />{" "}
+            {/* Front face */}
+            <meshStandardMaterial color="orange" attach="material-5" />{" "}
+            {/* Back face */}
+          </mesh>
+        </RigidBody>
+      </group>
     </>
   );
 }
