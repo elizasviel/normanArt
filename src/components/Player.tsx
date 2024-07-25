@@ -1,97 +1,71 @@
 import { RigidBody } from "@react-three/rapier";
-import { useRef, useState } from "react";
-import { useFrame } from "@react-three/fiber";
+
+import { useRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+
 import {
   useKeyboardControls,
   PerspectiveCamera,
-  PointerLockControls,
+  OrbitControls,
 } from "@react-three/drei";
 import * as THREE from "three";
 
 const SPEED = 5;
 const direction = new THREE.Vector3();
-const frontVector = new THREE.Vector3();
-const sideVector = new THREE.Vector3();
 
 export function Player() {
   const ref = useRef<any>();
-  const currentRotation = useRef(new THREE.Quaternion(0, 0, 0, 1));
-  const targetRotation = useRef(new THREE.Quaternion(0, 0, 0, 1));
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
-  const cameraPosition = useRef(new THREE.Vector3(0, 5, 5));
+  const controlsRef = useRef<any>(null);
+  const currentRotation = useRef(new THREE.Quaternion(0, 0, 0, 1));
 
   const [, get] = useKeyboardControls();
+  const { camera } = useThree();
+
   useFrame((state, delta) => {
     const { forward, backward, left, right, space } = get();
 
     const velocity = ref.current?.linvel();
 
-    // movement
-    frontVector.set(0, 0, Number(backward) - Number(forward));
-    sideVector.set(Number(left) - Number(right), 0, 0);
+    // Get camera direction
+    const cameraQuaternion = camera.quaternion;
+    const cameraDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(
+      cameraQuaternion
+    );
+    cameraDirection.y = 0; // Ignore vertical rotation
+    cameraDirection.normalize();
+    // Calculate right vector
+    const cameraRight = new THREE.Vector3(1, 0, 0).applyQuaternion(
+      cameraQuaternion
+    );
+    cameraRight.y = 0;
+    cameraRight.normalize();
 
-    //sets 1/0 for front and side vector based on the keyboard input
+    // Calculate movement direction
 
-    direction.subVectors(frontVector, sideVector).normalize();
+    direction.set(0, 0, 0);
+    if (forward) direction.add(cameraDirection);
+    if (backward) direction.sub(cameraDirection);
+    if (left) direction.sub(cameraRight);
+    if (right) direction.add(cameraRight);
+    direction.normalize();
 
-    if (frontVector.length() > 0 || sideVector.length() > 0) {
-      let rotationQuaternion = new THREE.Quaternion();
+    // Apply movement
+    if (direction.length() > 0) {
+      ref.current?.setLinvel(
+        { x: direction.x * SPEED, y: velocity.y, z: direction.z * SPEED },
+        true
+      );
 
-      switch (true) {
-        // Forward
-        case frontVector.z < 0 && sideVector.x === 0:
-          rotationQuaternion.setFromEuler(new THREE.Euler(0, 0, 0));
-          break;
-        // Backward (180 degrees)
-        case frontVector.z > 0 && sideVector.x === 0:
-          rotationQuaternion.setFromEuler(new THREE.Euler(0, Math.PI, 0));
-          break;
-        // Right
-        case sideVector.x < 0 && frontVector.z === 0:
-          rotationQuaternion.setFromEuler(new THREE.Euler(0, -Math.PI / 2, 0));
-          break;
-        // Left
-        case sideVector.x > 0 && frontVector.z === 0:
-          rotationQuaternion.setFromEuler(new THREE.Euler(0, Math.PI / 2, 0));
-          break;
-        // Diagonal: Forward-Right
-        case frontVector.z < 0 && sideVector.x < 0:
-          rotationQuaternion.setFromEuler(new THREE.Euler(0, -Math.PI / 4, 0));
-          break;
-        // Diagonal: Forward-Left
-        case frontVector.z < 0 && sideVector.x > 0:
-          rotationQuaternion.setFromEuler(new THREE.Euler(0, Math.PI / 4, 0));
-          break;
-        // Diagonal: Backward-Right
-        case frontVector.z > 0 && sideVector.x < 0:
-          rotationQuaternion.setFromEuler(new THREE.Euler(0, -Math.PI / 4, 0));
-          break;
-        // Diagonal: Backward-Left
-        case frontVector.z > 0 && sideVector.x > 0:
-          rotationQuaternion.setFromEuler(new THREE.Euler(0, Math.PI / 4, 0));
-          break;
-      }
-
-      targetRotation.current.copy(rotationQuaternion);
-
-      currentRotation.current.slerp(targetRotation.current, 5 * delta);
-
+      // Update player rotation to face movement direction
+      const targetRotation = new THREE.Quaternion().setFromUnitVectors(
+        new THREE.Vector3(0, 0, 1),
+        direction
+      );
+      currentRotation.current.slerp(targetRotation, 5 * delta);
       ref.current?.setRotation(currentRotation.current);
-    }
-
-    if (ref.current && cameraRef.current) {
-      const playerPosition = ref.current.translation();
-      cameraPosition.current.set(
-        playerPosition.x,
-        playerPosition.y + 3,
-        playerPosition.z + 3
-      );
-      cameraRef.current.position.lerp(cameraPosition.current, 0.1);
-      cameraRef.current.lookAt(
-        playerPosition.x,
-        playerPosition.y + 3,
-        playerPosition.z
-      );
+    } else {
+      ref.current?.setLinvel({ x: 0, y: velocity.y, z: 0 }, true);
     }
 
     // Log rotation for debugging
@@ -109,6 +83,15 @@ export function Player() {
       { x: direction.x, y: velocity.y, z: direction.z },
       true
     );
+    if (ref.current && controlsRef.current) {
+      const cubePosition = ref.current.translation();
+      controlsRef.current.target.set(
+        cubePosition.x,
+        cubePosition.y,
+        cubePosition.z
+      );
+      controlsRef.current.update();
+    }
   });
 
   return (
@@ -116,9 +99,16 @@ export function Player() {
       <PerspectiveCamera
         ref={cameraRef}
         makeDefault
+        position={[0, 5, 5]}
         fov={75}
-      ></PerspectiveCamera>
-
+      />
+      <OrbitControls
+        ref={controlsRef}
+        camera={camera}
+        enablePan={false}
+        minDistance={7}
+        maxDistance={7}
+      />
       <RigidBody
         colliders="hull"
         restitution={0}
@@ -128,7 +118,7 @@ export function Player() {
       >
         <mesh position={[0, 3, 0]}>
           <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color="gray" attach="material-0" />{" "}
+          <meshStandardMaterial color="pink" attach="material-0" />{" "}
           {/* Right face */}
           <meshStandardMaterial color="green" attach="material-1" />{" "}
           {/* Left face */}
@@ -145,8 +135,3 @@ export function Player() {
     </>
   );
 }
-
-/*
-
-
-*/
