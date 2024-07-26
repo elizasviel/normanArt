@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, Suspense, useEffect } from "react";
+import React, { useState, Suspense, useEffect, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Physics, RigidBody } from "@react-three/rapier";
-import { PerspectiveCamera } from "@react-three/drei";
-import { BuiltInShapes } from "./BuiltInShapes";
+
 import { CreatedShapes } from "./CreatedShapes";
 import { Controller } from "./Controller";
 import { Player } from "./Player";
@@ -34,6 +33,10 @@ const BallPit = () => {
   //This is the main component that is rendered in the app
   //It is a div that contains the canvas and the controller
 
+  const handleClick = (e: any) => {
+    setClicked(true);
+  };
+
   return (
     <div>
       {/* This is the controller that is used to update the data */}
@@ -55,9 +58,7 @@ const BallPit = () => {
             height: window.innerHeight,
             backgroundColor: "steelblue",
           }}
-          onClick={() => {
-            setClicked(true);
-          }}
+          onClick={handleClick}
         >
           <ambientLight intensity={Math.PI / 2} />
           <pointLight intensity={1} position={[0, 5, 0]} />
@@ -69,8 +70,8 @@ const BallPit = () => {
             {/* When user presses the return key, sends a post request to the server and sets data equal to the response */}
             {/* CreatedShapes uses the data, so should work with physics. However, it could be the case that re renders
             not happening here*/}
-            <Physics interpolate={false} gravity={[0, -9.81, 0]} debug>
-              <Player clicked={clicked} setClicked={setClicked}></Player>
+            <Physics interpolate={true} gravity={[0, -9.81, 0]} debug>
+              <Player></Player>
               <RigidBody
                 colliders="hull"
                 restitution={0}
@@ -83,7 +84,7 @@ const BallPit = () => {
                 </mesh>
               </RigidBody>
               <RigidBody
-                colliders="hull"
+                colliders="ball"
                 restitution={0}
                 mass={0.2}
                 position={[-2, 0, 0]}
@@ -95,12 +96,7 @@ const BallPit = () => {
               </RigidBody>
               <CreatedShapes data={data} />
 
-              <RigidBody
-                colliders="hull"
-                restitution={1}
-                type="fixed"
-                ccd={true}
-              >
+              <RigidBody type="fixed">
                 <mesh
                   position={[0, -2, 0]}
                   rotation={[(3 * Math.PI) / 2, 0, 0]}

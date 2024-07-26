@@ -1,5 +1,5 @@
 import { RigidBody, useRevoluteJoint } from "@react-three/rapier";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import {
   useKeyboardControls,
@@ -15,13 +15,7 @@ const direction = new THREE.Vector3();
 // player always turns to face the direction they are moving
 // camera follow the player
 
-export function Player({
-  clicked,
-  setClicked,
-}: {
-  clicked: boolean;
-  setClicked: (clicked: boolean) => void;
-}) {
+export function Player() {
   //reference to the player object
   const playerRef = useRef<any>();
   //reference to the weapon object
@@ -30,22 +24,17 @@ export function Player({
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   //reference to the camera controls
   const controlsRef = useRef<any>(null);
-  //reference to the current rotation of the player
-  const currentRotation = useRef(new THREE.Quaternion(0, 0, 0, 1));
   //tracks if the weapon is locked
   const weaponLock = useRef(false);
+
+  const [playerRotation, setPlayerRotation] = useState(
+    new THREE.Quaternion(0, 0, 0, 1)
+  );
 
   //get the keyboard controls
   const [, get] = useKeyboardControls();
   //get the camera
   const { camera } = useThree();
-
-  /*const playerWeaponJoint = useRevoluteJoint(playerRef, weaponRef, [
-    [0, 0, 0],
-    [0, 0, 4],
-    [0, 1, 0],
-  ]);
-  */
 
   //delta represents the time between frames
   useFrame((state, delta) => {
@@ -82,45 +71,37 @@ export function Player({
     if (left) direction.sub(cameraRight);
     if (right) direction.add(cameraRight);
     if (space) direction.y = 3;
+    if (!space) direction.y = velocity.y;
     // direction.normalize(); // removed normalzation to allow for faster movement
 
-    // Apply movement
-    // y handles jumps
+    //.length () : Float
+    //Computes the Euclidean length (straight-line length) from (0, 0, 0) to (x, y, z).
+
     if (direction.length() > 0) {
       playerRef.current?.setLinvel(
         { x: direction.x * SPEED, y: direction.y, z: direction.z * SPEED },
         true //true wakes, or activates, the RigidBody
       );
+    }
 
-      // Update player rotation to face movement direction
-      // Locking player rotation along the x and z axes will prevent "tumble" effects
-      // TODO: Locking does not prevent rotations because rotation is set directly and not a result of a force
-
+    if (forward || backward || left || right) {
+      //player should rotate only in response to these user inputs
+      //compute rotation, set state, update ref
       const targetRotation = new THREE.Quaternion().setFromUnitVectors(
         new THREE.Vector3(0, 0, 1),
         direction
       );
 
-      //calculate the new rotation by interpolating between the current rotation and the target rotation
-      currentRotation.current.slerp(targetRotation, 5 * delta);
-      //workaround to prevent rotation on the x axis
-      currentRotation.current.x = 0;
-      //workaround to prevent rotation on the z axis
-      currentRotation.current.z = 0;
-      //apply the new rotation to the player
-      playerRef.current?.setRotation(currentRotation.current);
-    } else {
-      //workaround to prevent rotation on the x axis
-      currentRotation.current.x = 0;
-      //workaround to prevent rotation on the z axis
-      currentRotation.current.z = 0;
-      //preserve the rotation of the player
-      playerRef.current?.setRotation(currentRotation.current);
-      //preserve the y velocity to handle jumps and falls, otherwise set the player to a stand still
-      playerRef.current?.setLinvel({ x: 0, y: velocity.y, z: 0 }, true);
+      targetRotation.x = 0;
+      targetRotation.z = 0;
+
+      targetRotation.slerp(playerRotation, 50 * delta);
+
+      setPlayerRotation(targetRotation);
+
+      playerRef.current.setRotation(playerRotation);
     }
 
-    //update the camera to follow the player
     if (playerRef.current && controlsRef.current) {
       const cubePosition = playerRef.current.translation();
       controlsRef.current.target.set(
@@ -130,23 +111,17 @@ export function Player({
       );
       controlsRef.current.update();
     }
-
-    if (clicked) {
-      console.log(clicked);
-      setClicked(false); //remember, state variables are not updated immediately
-      console.log(clicked);
-    }
   });
 
   return (
     <>
-      <PerspectiveCamera ref={cameraRef} makeDefault fov={75} />
+      <PerspectiveCamera ref={cameraRef} fov={75} />
       <OrbitControls
         ref={controlsRef}
-        camera={camera}
-        enablePan={false}
         minDistance={7}
         maxDistance={7}
+        maxPolarAngle={Math.PI / 2 - 0.3}
+        minPolarAngle={0.3}
       />
 
       <group position={[5, 0, 5]}>
@@ -178,34 +153,3 @@ export function Player({
     </>
   );
 }
-
-/*
-    <RigidBody
-            colliders="hull"
-            restitution={0}
-            ccd={true}
-            ref={weaponHelperRef}
-          >
-    <mesh>
-              <sphereGeometry args={[1.5]} />
-              <meshStandardMaterial color="pink" />
-            </mesh>
-          </RigidBody>
-
-*/
-
-/*
-
-        <RigidBody
-          colliders="hull"
-          restitution={0}
-          ccd={true}
-          ref={weaponRef}
-          dominanceGroup={1}
-        >
-          <mesh>
-            <boxGeometry args={[0.2, 0.2, 0.2]} />
-            <meshStandardMaterial color="pink" />
-          </mesh>
-        </RigidBody>
-*/
