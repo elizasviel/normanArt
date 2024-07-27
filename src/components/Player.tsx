@@ -43,7 +43,7 @@ export function Player({
     [0, 1, 0],
   ]);
 
-  //playerWeaponJoint.current?.setLimits(0, Math.PI);
+  playerWeaponJoint.current?.setLimits(0, Math.PI / 2);
   //playerWeaponJoint.current?.configureMotorVelocity(100);
 
   //get the keyboard controls
@@ -128,12 +128,19 @@ export function Player({
     }
     if (clicked) {
       setClicked(false);
-      //weaponLock.current = false; //unlock weapon
+      weaponLock.current = false; //unlock weapon
       console.log("swordSwing");
+
       playerWeaponJoint.current?.configureMotorPosition(
         Math.PI / 2,
-        1000000,
-        10000
+        10000,
+        100
+      );
+      console.log(playerWeaponJoint.current?.frameX1());
+      console.log(playerWeaponJoint.current?.frameX2());
+      console.log(
+        playerWeaponJoint.current?.frameX2() ==
+          playerWeaponJoint.current?.frameX1()
       );
     }
   });
