@@ -15,21 +15,36 @@ const direction = new THREE.Vector3();
 // player always turns to face the direction they are moving
 // camera follow the player
 
-export function Player() {
+export function Player({
+  clicked,
+  setClicked,
+}: {
+  clicked: boolean;
+  setClicked: (clicked: boolean) => void;
+}) {
   //reference to the player object
   const playerRef = useRef<any>();
   //reference to the weapon object
-  //const weaponRef = useRef<any>();
+  const weaponRef = useRef<any>();
   //reference to the camera object
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   //reference to the camera controls
   const controlsRef = useRef<any>(null);
   //tracks if the weapon is locked
-  const weaponLock = useRef(false);
+  const weaponLock = useRef(true);
 
   const [playerRotation, setPlayerRotation] = useState(
     new THREE.Quaternion(0, 0, 0, 1)
   );
+
+  const playerWeaponJoint = useRevoluteJoint(playerRef, weaponRef, [
+    [0, 0, 0],
+    [0, 0, 4],
+    [0, 1, 0],
+  ]);
+
+  //playerWeaponJoint.current?.setLimits(0, Math.PI);
+  //playerWeaponJoint.current?.configureMotorVelocity(100);
 
   //get the keyboard controls
   const [, get] = useKeyboardControls();
@@ -111,6 +126,16 @@ export function Player() {
       );
       controlsRef.current.update();
     }
+    if (clicked) {
+      setClicked(false);
+      //weaponLock.current = false; //unlock weapon
+      console.log("swordSwing");
+      playerWeaponJoint.current?.configureMotorPosition(
+        Math.PI / 2,
+        1000000,
+        10000
+      );
+    }
   });
 
   return (
@@ -125,6 +150,19 @@ export function Player() {
       />
 
       <group position={[5, 0, 5]}>
+        <RigidBody
+          colliders="hull"
+          restitution={0}
+          ccd={true}
+          ref={weaponRef}
+          dominanceGroup={1}
+          lockRotations={weaponLock.current}
+        >
+          <mesh>
+            <boxGeometry args={[0.2, 0.2, 0.2]} />
+            <meshStandardMaterial color="pink" />
+          </mesh>
+        </RigidBody>
         <RigidBody
           colliders="hull"
           restitution={0}
