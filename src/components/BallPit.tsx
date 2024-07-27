@@ -70,7 +70,7 @@ const BallPit = () => {
             {/* When user presses the return key, sends a post request to the server and sets data equal to the response */}
             {/* CreatedShapes uses the data, so should work with physics. However, it could be the case that re renders
             not happening here*/}
-            <Physics interpolate={true} gravity={[0, -9.81, 0]} debug>
+            <Physics interpolate={true} gravity={[0, -9.81, 0]}>
               <Player clicked={clicked} setClicked={setClicked}></Player>
               <RigidBody
                 colliders="hull"
