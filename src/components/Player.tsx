@@ -42,7 +42,7 @@ export function Player({ clicked, setClicked }: PlayerProps) {
 
   useEffect(() => {
     playerWeaponJoint.current?.setLimits(-Math.PI, Math.PI);
-  }, []);
+  });
 
   useEffect(() => {
     if (clicked && !swinging) {
@@ -171,6 +171,8 @@ const WeaponMesh = React.forwardRef<RapierRigidBody>((props, ref) => (
   </RigidBody>
 ));
 
+WeaponMesh.displayName = "WeaponMesh";
+
 const PlayerMesh = React.forwardRef<RapierRigidBody>((props, ref) => (
   <RigidBody
     colliders="hull"
@@ -194,3 +196,5 @@ const PlayerMesh = React.forwardRef<RapierRigidBody>((props, ref) => (
     </mesh>
   </RigidBody>
 ));
+
+PlayerMesh.displayName = "PlayerMesh";

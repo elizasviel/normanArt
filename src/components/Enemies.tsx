@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { RigidBody, CuboidCollider } from "@react-three/rapier";
@@ -19,17 +19,17 @@ export const Enemies: React.FC = () => {
   const [enemies, setEnemies] = useState<Enemy[]>([]);
   const initialPositions = useRef<THREE.Vector3[]>([]);
 
-  useEffect(() => {
-    spawnEnemies();
-  }, []);
-
-  const spawnEnemies = () => {
+  const spawnEnemies = useCallback(() => {
     const newEnemies: Enemy[] = [];
     for (let i = 0; i < COUNT; i++) {
       newEnemies.push(createEnemy());
     }
     setEnemies(newEnemies);
-  };
+  }, []);
+
+  useEffect(() => {
+    spawnEnemies();
+  }, [spawnEnemies]);
 
   const createEnemy = (): Enemy => {
     const x = (Math.random() - 0.5) * SPAWN_RANGE;
