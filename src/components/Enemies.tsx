@@ -1,19 +1,28 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { RigidBody, CuboidCollider } from "@react-three/rapier";
+import { RigidBody, BallCollider } from "@react-three/rapier";
 import { Sphere } from "@react-three/drei";
 
 const COUNT = 50;
 const SPAWN_RANGE_XZ = 100;
 const SPAWN_RANGE_Y = 70;
 const MOVEMENT_RANGE = 5;
+const ENEMY_COLORS = [
+  "lightblue",
+  "lightgreen",
+  "lightpink",
+  "lightyellow",
+  "lightcoral",
+  "lightsalmon",
+];
 
 interface Enemy {
   id: number;
   position: [number, number, number];
   isPopping: boolean;
   popStartTime: number;
+  color: string;
 }
 
 export const Enemies: React.FC = () => {
@@ -42,6 +51,7 @@ export const Enemies: React.FC = () => {
       position: [x, y, z],
       isPopping: false,
       popStartTime: 0,
+      color: ENEMY_COLORS[Math.floor(Math.random() * ENEMY_COLORS.length)],
     };
   };
 
@@ -59,7 +69,7 @@ export const Enemies: React.FC = () => {
     setEnemies((prevEnemies) =>
       prevEnemies.map((enemy, index) => {
         if (enemy.isPopping) {
-          const popDuration = 500;
+          const popDuration = 2000;
           if (Date.now() - enemy.popStartTime > popDuration) {
             return createEnemy();
           }
@@ -95,6 +105,7 @@ interface EnemyProps {
   position: [number, number, number];
   isPopping: boolean;
   onCollision: () => void;
+  color: string;
 }
 
 const Enemy: React.FC<EnemyProps> = ({
@@ -102,15 +113,17 @@ const Enemy: React.FC<EnemyProps> = ({
   position,
   isPopping,
   onCollision,
+  color,
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
-  const [scale, setScale] = useState<number>(1);
   const [opacity, setOpacity] = useState<number>(0.7);
+  const [theta, setTheta] = useState<number>(2 * Math.PI);
+  const [phi, setPhi] = useState<number>(2 * Math.PI);
 
   useEffect(() => {
     if (isPopping) {
       let startTime = Date.now();
-      const popDuration = 500; // 500ms for the entire pop animation
+      const popDuration = 2000; // 2 seconds for the entire pop animation
 
       const popAnimation = () => {
         const elapsedTime = Date.now() - startTime;
@@ -120,11 +133,9 @@ const Enemy: React.FC<EnemyProps> = ({
         const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
         const easedProgress = easeOutCubic(progress);
 
-        // Scale up to 1.5 times the original size
-        setScale(1 + 0.5 * easedProgress);
-
-        // Fade out
-        setOpacity(0.7 * (1 - easedProgress));
+        // Reduce theta and phi to zero
+        setTheta(2 * Math.PI * (1 - easedProgress));
+        setPhi(2 * Math.PI * (1 - easedProgress));
 
         if (progress < 1) {
           requestAnimationFrame(popAnimation);
@@ -133,23 +144,21 @@ const Enemy: React.FC<EnemyProps> = ({
 
       requestAnimationFrame(popAnimation);
     } else {
-      setScale(1);
+      setTheta(2 * Math.PI);
+      setPhi(2 * Math.PI);
       setOpacity(0.7);
     }
   }, [isPopping]);
 
   return (
-    <RigidBody position={position} type="fixed">
-      <CuboidCollider
-        args={[0.5, 0.5, 0.5]}
-        sensor
-        onIntersectionEnter={onCollision}
-      />
-      <Sphere ref={meshRef} args={[0.5, 32, 32]} scale={scale}>
+    <RigidBody position={position} type="fixed" sensor>
+      <BallCollider args={[4]} sensor onIntersectionEnter={onCollision} />
+      <Sphere ref={meshRef} args={[4, 32, 32, 0, theta, 0, phi]}>
         <meshStandardMaterial
-          color={isPopping ? "red" : "lightblue"}
+          color={isPopping ? "red" : color}
           transparent
           opacity={opacity}
+          roughness={0.1}
         />
       </Sphere>
     </RigidBody>

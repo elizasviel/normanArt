@@ -9,7 +9,7 @@ const wallThickness = 1;
 const Cloud: React.FC<{ position: [number, number, number] }> = ({
   position,
 }) => {
-  const geometry = useMemo(() => new Three.SphereGeometry(1, 16, 16), []);
+  const geometry = useMemo(() => new Three.SphereGeometry(3, 16, 16), []);
   const material = useMemo(
     () =>
       new Three.MeshStandardMaterial({
