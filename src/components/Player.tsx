@@ -182,7 +182,7 @@ const WeaponMesh = React.forwardRef<
   useFrame(() => {
     if (meshRef.current) {
       const progress = props.appearProgress;
-      meshRef.current.scale.set(progress, 0.0, 1);
+      meshRef.current.scale.set(progress, progress / 2, 1);
     }
   });
 
@@ -197,7 +197,7 @@ const WeaponMesh = React.forwardRef<
       sensor
     >
       <mesh ref={meshRef}>
-        <boxGeometry args={[0.5, 0.1, 6]} />
+        <boxGeometry args={[0.5, 0.3, 6]} />
         <meshStandardMaterial color="pink" />
       </mesh>
     </RigidBody>
