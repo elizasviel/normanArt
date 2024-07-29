@@ -1,7 +1,6 @@
 import React, { Suspense } from "react";
 import { Enemies } from "./Enemies";
 import { CreatedShapes } from "./CreatedShapes";
-import { BuiltInShapes } from "./BuiltInShapes";
 import { Player } from "./Player";
 import { Walls } from "./Walls";
 import { CanvasData } from "./BallPit";
@@ -23,16 +22,10 @@ export const Scene: React.FC<SceneProps> = ({ data, clicked, setClicked }) => {
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
       />
-      <BuiltInShapes receiveShadow castShadow />
-      <Enemies receiveShadow castShadow />
-      <Player
-        clicked={clicked}
-        setClicked={setClicked}
-        receiveShadow
-        castShadow
-      />
-      <CreatedShapes data={data} receiveShadow castShadow />
-      <Walls receiveShadow />
+      <Enemies />
+      <Player clicked={clicked} setClicked={setClicked} />
+      <CreatedShapes data={data} />
+      <Walls />
     </Suspense>
   );
 };
