@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Sphere } from "@react-three/drei";
 import { Vector3 } from "three";
 import { CanvasData } from "./BallPit";
@@ -14,6 +14,26 @@ export const Creator: React.FC<CreatorProps> = ({ setData }) => {
   useEffect(() => {
     positionRef.current = position;
   }, [position]);
+
+  const createSphere = useCallback(async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          args: [1, 16, 16],
+          position: positionRef.current.toArray(),
+          color: "lightgreen",
+        }),
+      });
+      const data = await response.json();
+      setData(data);
+    } catch (error) {
+      console.error("Error creating sphere:", error);
+    }
+  }, [setData]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -55,27 +75,7 @@ export const Creator: React.FC<CreatorProps> = ({ setData }) => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
-
-  const createSphere = async () => {
-    try {
-      const response = await fetch("http://localhost:3000/api", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          args: [1, 16, 16],
-          position: positionRef.current.toArray(),
-          color: "lightgreen",
-        }),
-      });
-      const data = await response.json();
-      setData(data);
-    } catch (error) {
-      console.error("Error creating sphere:", error);
-    }
-  };
+  }, [createSphere]);
 
   return <Sphere args={[1, 100, 100]} position={position} />;
 };
