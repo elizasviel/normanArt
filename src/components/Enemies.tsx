@@ -8,23 +8,30 @@ const COUNT = 10;
 const SPAWN_RANGE = 20;
 const MOVEMENT_RANGE = 2;
 
-export const Enemies = () => {
-  const [enemies, setEnemies] = useState([]);
-  const initialPositions = useRef([]);
+interface Enemy {
+  id: number;
+  position: [number, number, number];
+  isPopping: boolean;
+  popStartTime: number;
+}
+
+export const Enemies: React.FC = () => {
+  const [enemies, setEnemies] = useState<Enemy[]>([]);
+  const initialPositions = useRef<THREE.Vector3[]>([]);
 
   useEffect(() => {
     spawnEnemies();
   }, []);
 
   const spawnEnemies = () => {
-    const newEnemies = [];
+    const newEnemies: Enemy[] = [];
     for (let i = 0; i < COUNT; i++) {
       newEnemies.push(createEnemy());
     }
     setEnemies(newEnemies);
   };
 
-  const createEnemy = () => {
+  const createEnemy = (): Enemy => {
     const x = (Math.random() - 0.5) * SPAWN_RANGE;
     const y = (Math.random() - 0.5) * SPAWN_RANGE;
     const z = (Math.random() - 0.5) * SPAWN_RANGE;
@@ -37,7 +44,7 @@ export const Enemies = () => {
     };
   };
 
-  const handleCollision = (enemyId) => {
+  const handleCollision = (enemyId: number) => {
     setEnemies((prevEnemies) =>
       prevEnemies.map((enemy) =>
         enemy.id === enemyId
@@ -85,9 +92,21 @@ export const Enemies = () => {
   );
 };
 
-const Enemy = ({ id, position, isPopping, onCollision }) => {
-  const meshRef = useRef();
-  const [scale, setScale] = useState(1);
+interface EnemyProps {
+  id: number;
+  position: [number, number, number];
+  isPopping: boolean;
+  onCollision: () => void;
+}
+
+const Enemy: React.FC<EnemyProps> = ({
+  id,
+  position,
+  isPopping,
+  onCollision,
+}) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const [scale, setScale] = useState<number>(1);
 
   useEffect(() => {
     if (isPopping) {
