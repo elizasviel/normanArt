@@ -1,65 +1,81 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Sphere } from "@react-three/drei";
+import { Vector3 } from "three";
+import { CanvasData } from "./BallPit";
 
-export const Creator = ({ setData }: { setData: any }) => {
-  const [Y, setY] = useState(0);
-  const [Z, setZ] = useState(0);
-  const [X, setX] = useState(0);
+interface CreatorProps {
+  setData: React.Dispatch<React.SetStateAction<CanvasData>>;
+}
 
-  const currentCoordinatValuesRef = useRef([Y, Z, X]);
+export const Creator: React.FC<CreatorProps> = ({ setData }) => {
+  const [position, setPosition] = useState<Vector3>(new Vector3(0, 0, 0));
+  const positionRef = useRef<Vector3>(position);
+
   useEffect(() => {
-    currentCoordinatValuesRef.current = [Y, Z, X];
-  }, [Y, Z, X]);
-  //This effect runs only once
-  //Adds a event listener to the window
-  //How would the Window even know about X Y and Z?
-  useEffect(() => {
-    window.addEventListener("keydown", (event) => {
-      switch (event.key) {
-        case "ArrowUp":
-          setY((prev) => {
-            console.log(prev - 1);
-            return prev - 1;
-          });
-          break;
-        case "ArrowDown":
-          setY((prev) => prev + 1);
-          break;
-        case "ArrowLeft":
-          setX((prev) => prev + 1);
-          break;
-        case "ArrowRight":
-          setX((prev) => prev - 1);
-          break;
+    positionRef.current = position;
+  }, [position]);
 
-        case "Shift":
-          if (event.code === "ShiftRight") {
-            setZ((prev) => prev + 1);
-          }
-          break;
-        case "Enter":
-          fetch("http://localhost:3000/api", {
-            method: "POST",
-            body: JSON.stringify({
-              args: [1, 16, 16],
-              position: currentCoordinatValuesRef.current,
-              color: "lightgreen",
-            }),
-          })
-            .then((response) => {
-              return response.json();
-            })
-            .then((data) => {
-              setData(data); // this will be a json
-            });
-          break;
-      }
-    });
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const { key, code } = event;
+      const moveAmount = 1;
+
+      setPosition((prev) => {
+        const newPosition = prev.clone();
+
+        switch (key) {
+          case "ArrowUp":
+            newPosition.y -= moveAmount;
+            break;
+          case "ArrowDown":
+            newPosition.y += moveAmount;
+            break;
+          case "ArrowLeft":
+            newPosition.x += moveAmount;
+            break;
+          case "ArrowRight":
+            newPosition.x -= moveAmount;
+            break;
+          case "Shift":
+            if (code === "ShiftRight") {
+              newPosition.z += moveAmount;
+            }
+            break;
+          case "Enter":
+            createSphere();
+            break;
+        }
+
+        return newPosition;
+      });
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
-  return (
-    <>
-      <Sphere args={[1, 100, 100]} position={[Y, Z, X]} />
-    </>
-  );
+  const createSphere = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          args: [1, 16, 16],
+          position: positionRef.current.toArray(),
+          color: "lightgreen",
+        }),
+      });
+      const data = await response.json();
+      setData(data);
+    } catch (error) {
+      console.error("Error creating sphere:", error);
+    }
+  };
+
+  return <Sphere args={[1, 100, 100]} position={position} />;
 };

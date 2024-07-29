@@ -15,13 +15,24 @@ interface SceneProps {
 export const Scene: React.FC<SceneProps> = ({ data, clicked, setClicked }) => {
   return (
     <Suspense fallback={null}>
-      <ambientLight intensity={2} />
-      <pointLight intensity={1} position={[0, 5, 0]} />
-      <BuiltInShapes />
-      <Enemies />
-      <Player clicked={clicked} setClicked={setClicked} />
-      <CreatedShapes data={data} />
-      <Walls />
+      <ambientLight intensity={0.5} />
+      <directionalLight
+        position={[10, 10, 5]}
+        intensity={1}
+        castShadow
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+      />
+      <BuiltInShapes receiveShadow castShadow />
+      <Enemies receiveShadow castShadow />
+      <Player
+        clicked={clicked}
+        setClicked={setClicked}
+        receiveShadow
+        castShadow
+      />
+      <CreatedShapes data={data} receiveShadow castShadow />
+      <Walls receiveShadow />
     </Suspense>
   );
 };
