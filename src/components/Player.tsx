@@ -1,4 +1,8 @@
-import { RigidBody, useRevoluteJoint } from "@react-three/rapier";
+import {
+  RigidBody,
+  useRevoluteJoint,
+  RapierRigidBody,
+} from "@react-three/rapier";
 import { useRef, useState, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import React from "react";
@@ -12,13 +16,16 @@ import * as THREE from "three";
 const SPEED = 5;
 const SWING_DURATION = 0.5;
 
-export function Player({ clicked, setClicked }) {
-  const [playerRef, weaponRef, cameraRef, controlsRef] = [
-    useRef(),
-    useRef(),
-    useRef(),
-    useRef(),
-  ];
+interface PlayerProps {
+  clicked: boolean;
+  setClicked: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export function Player({ clicked, setClicked }: PlayerProps) {
+  const playerRef = useRef<RapierRigidBody>(null);
+  const weaponRef = useRef<RapierRigidBody>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera>(null);
+  const controlsRef: any = useRef(null);
   const [playerRotation, setPlayerRotation] = useState(
     () => new THREE.Quaternion()
   );
@@ -51,12 +58,11 @@ export function Player({ clicked, setClicked }) {
     handleWeaponSwing();
   });
 
-  // Movement and rotation logic
-  const handleMovement = (delta) => {
+  const handleMovement = (delta: number) => {
     const { forward, backward, left, right, space } = getKeys();
     const direction = calculateMoveDirection(forward, backward, left, right);
     const velocity = playerRef.current?.linvel();
-    direction.y = space ? 3 : velocity.y;
+    direction.y = space ? 3 : velocity?.y ?? 0;
 
     if (direction.length() > 0) {
       playerRef.current?.setLinvel(
@@ -67,7 +73,12 @@ export function Player({ clicked, setClicked }) {
     }
   };
 
-  const calculateMoveDirection = (forward, backward, left, right) => {
+  const calculateMoveDirection = (
+    forward: boolean,
+    backward: boolean,
+    left: boolean,
+    right: boolean
+  ) => {
     const cameraDirection = new THREE.Vector3(0, 0, -1)
       .applyQuaternion(camera.quaternion)
       .setY(0)
@@ -90,7 +101,7 @@ export function Player({ clicked, setClicked }) {
       );
   };
 
-  const updatePlayerRotation = (direction, delta) => {
+  const updatePlayerRotation = (direction: THREE.Vector3, delta: number) => {
     const targetRotation = new THREE.Quaternion().setFromUnitVectors(
       new THREE.Vector3(0, 0, 1),
       direction
@@ -98,10 +109,9 @@ export function Player({ clicked, setClicked }) {
     targetRotation.x = targetRotation.z = 0;
     targetRotation.slerp(playerRotation, 50 * delta);
     setPlayerRotation(targetRotation);
-    playerRef.current.setRotation(targetRotation);
+    playerRef.current?.setRotation(targetRotation, true);
   };
 
-  // Camera update
   const updateCameraPosition = () => {
     if (playerRef.current && controlsRef.current) {
       controlsRef.current.target.copy(playerRef.current.translation());
@@ -109,7 +119,6 @@ export function Player({ clicked, setClicked }) {
     }
   };
 
-  // Weapon swing logic
   const handleWeaponSwing = () => {
     if (swinging) {
       const elapsedTime = (Date.now() - swingStartTime.current) / 1000;
@@ -127,7 +136,6 @@ export function Player({ clicked, setClicked }) {
     }
   };
 
-  // Render
   return (
     <>
       <PerspectiveCamera ref={cameraRef} fov={75} />
@@ -146,8 +154,7 @@ export function Player({ clicked, setClicked }) {
   );
 }
 
-// Separate components for Weapon and Player meshes
-const WeaponMesh = React.forwardRef((props, ref) => (
+const WeaponMesh = React.forwardRef<RapierRigidBody>((props, ref) => (
   <RigidBody
     colliders="hull"
     restitution={0}
@@ -164,7 +171,7 @@ const WeaponMesh = React.forwardRef((props, ref) => (
   </RigidBody>
 ));
 
-const PlayerMesh = React.forwardRef((props, ref) => (
+const PlayerMesh = React.forwardRef<RapierRigidBody>((props, ref) => (
   <RigidBody
     colliders="hull"
     restitution={0}
