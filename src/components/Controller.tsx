@@ -17,23 +17,7 @@ export const Controller = ({ setData }: any) => {
       }}
     >
       <button
-        onClick={() => {
-          fetch("http://localhost:3000/api", {
-            method: "GET",
-          })
-            .then((response) => {
-              return response.json();
-            })
-            .then((data) => {
-              console.log(data);
-              setData(data); // this will be a json
-            });
-        }}
-      >
-        Get Bumpers
-      </button>
-
-      <button
+        style={{ backgroundColor: "pink", color: "black" }}
         onClick={() => {
           fetch("http://localhost:3000/api", {
             method: "POST",
@@ -48,10 +32,11 @@ export const Controller = ({ setData }: any) => {
             });
         }}
       >
-        Delete Bumpers
+        Erase Terrain
       </button>
 
       <button
+        style={{ backgroundColor: "lightgreen", color: "black" }}
         onClick={() => {
           fetch("http://localhost:3000/api", {
             method: "POST",
@@ -67,16 +52,27 @@ export const Controller = ({ setData }: any) => {
             .then((data) => {
               console.log(data); // this will be a string
             });
+          fetch("http://localhost:3000/api", {
+            method: "GET",
+          })
+            .then((response) => {
+              return response.json();
+            })
+            .then((data) => {
+              setData(data); // this will be a json
+            });
         }}
       >
-        Add Bumper
+        Add Terrain
       </button>
+
       <div
         style={{
           backgroundColor: "lightblue",
           display: "flex",
           flexDirection: "column",
           color: "black",
+          width: 50,
         }}
       >
         <input onChange={(e) => setX(parseInt(e.target.value))} value={X} />

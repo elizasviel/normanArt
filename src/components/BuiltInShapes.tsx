@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import React from "react";
+import React, { useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import { Sphere } from "@react-three/drei";
 
 type sphereArgs = [
@@ -14,23 +15,21 @@ type sphereArgs = [
 type spherePosition = [x: number, y: number, z: number];
 
 export const BuiltInShapes = () => {
+  //reference to the test cube
+  const testCube = useRef<any>();
   const buildSphere = [
-    {
-      args: [1, 16, 16],
-      position: [0, 1, 2],
-      color: "red",
-    },
-    {
-      args: [1, 16, 16],
-      position: [0, 0, 0],
-      color: "green",
-    },
     {
       args: [1, 16, 16],
       position: [3, 3, 3],
       color: "blue",
     },
   ];
+
+  useFrame((state, delta) => {
+    const { clock } = state;
+    const elapsedTime = clock.getElapsedTime();
+    testCube.current.rotation.x = elapsedTime;
+  });
 
   return (
     <>
@@ -42,8 +41,11 @@ export const BuiltInShapes = () => {
         >
           <meshStandardMaterial color={sphere.color} />
         </Sphere>
-        //handle undefined
       ))}
+      <mesh position={[2, 2, 2]} ref={testCube}>
+        <boxGeometry args={[2, 2, 2]} />
+        <meshStandardMaterial color="black" opacity={0.2} transparent={true} />
+      </mesh>
     </>
   );
 };
