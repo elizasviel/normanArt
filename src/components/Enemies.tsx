@@ -4,9 +4,10 @@ import { useFrame } from "@react-three/fiber";
 import { RigidBody, CuboidCollider } from "@react-three/rapier";
 import { Sphere } from "@react-three/drei";
 
-const COUNT = 10;
-const SPAWN_RANGE = 20;
-const MOVEMENT_RANGE = 2;
+const COUNT = 50;
+const SPAWN_RANGE_XZ = 100;
+const SPAWN_RANGE_Y = 70;
+const MOVEMENT_RANGE = 5;
 
 interface Enemy {
   id: number;
@@ -32,9 +33,9 @@ export const Enemies: React.FC = () => {
   }, [spawnEnemies]);
 
   const createEnemy = (): Enemy => {
-    const x = (Math.random() - 0.5) * SPAWN_RANGE;
-    const y = (Math.random() - 0.5) * SPAWN_RANGE;
-    const z = (Math.random() - 0.5) * SPAWN_RANGE;
+    const x = (Math.random() - 0.5) * SPAWN_RANGE_XZ;
+    const y = Math.random() * SPAWN_RANGE_Y - 50;
+    const z = (Math.random() - 0.5) * SPAWN_RANGE_XZ;
     initialPositions.current.push(new THREE.Vector3(x, y, z));
     return {
       id: Math.random(),
@@ -58,21 +59,18 @@ export const Enemies: React.FC = () => {
     setEnemies((prevEnemies) =>
       prevEnemies.map((enemy, index) => {
         if (enemy.isPopping) {
-          const popDuration = 500; // 0.5 second pop animation
+          const popDuration = 500;
           if (Date.now() - enemy.popStartTime > popDuration) {
-            return createEnemy(); // Respawn
+            return createEnemy();
           }
           return enemy;
         }
 
         const initialPos = initialPositions.current[index];
-        const offset =
-          Math.sin(state.clock.elapsedTime + index) * MOVEMENT_RANGE;
-        const x = initialPos.x + offset;
-        const y =
-          initialPos.y +
-          Math.cos(state.clock.elapsedTime + index) * MOVEMENT_RANGE;
-        const z = initialPos.z;
+        const time = state.clock.elapsedTime + index;
+        const x = initialPos.x + Math.sin(time) * MOVEMENT_RANGE;
+        const y = initialPos.y + Math.cos(time * 0.5) * MOVEMENT_RANGE;
+        const z = initialPos.z + Math.sin(time * 0.7) * MOVEMENT_RANGE;
 
         return { ...enemy, position: [x, y, z] };
       })
@@ -107,17 +105,36 @@ const Enemy: React.FC<EnemyProps> = ({
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const [scale, setScale] = useState<number>(1);
+  const [opacity, setOpacity] = useState<number>(0.7);
 
   useEffect(() => {
     if (isPopping) {
+      let startTime = Date.now();
+      const popDuration = 500; // 500ms for the entire pop animation
+
       const popAnimation = () => {
-        setScale((prevScale) => {
-          const newScale = prevScale * 1.05;
-          return newScale > 1.5 ? 1.5 : newScale;
-        });
+        const elapsedTime = Date.now() - startTime;
+        const progress = Math.min(elapsedTime / popDuration, 1);
+
+        // Easing function for smoother animation
+        const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+        const easedProgress = easeOutCubic(progress);
+
+        // Scale up to 1.5 times the original size
+        setScale(1 + 0.5 * easedProgress);
+
+        // Fade out
+        setOpacity(0.7 * (1 - easedProgress));
+
+        if (progress < 1) {
+          requestAnimationFrame(popAnimation);
+        }
       };
-      const intervalId = setInterval(popAnimation, 16);
-      return () => clearInterval(intervalId);
+
+      requestAnimationFrame(popAnimation);
+    } else {
+      setScale(1);
+      setOpacity(0.7);
     }
   }, [isPopping]);
 
@@ -128,11 +145,11 @@ const Enemy: React.FC<EnemyProps> = ({
         sensor
         onIntersectionEnter={onCollision}
       />
-      <Sphere ref={meshRef} args={[0.5, 16, 16]} scale={scale}>
+      <Sphere ref={meshRef} args={[0.5, 32, 32]} scale={scale}>
         <meshStandardMaterial
           color={isPopping ? "red" : "lightblue"}
           transparent
-          opacity={0.7}
+          opacity={opacity}
         />
       </Sphere>
     </RigidBody>

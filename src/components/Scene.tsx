@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import { Enemies } from "./Enemies";
 import { CreatedShapes } from "./CreatedShapes";
 import { Player } from "./Player";
-import { Walls } from "./Walls";
+import { Terrain } from "./Terrain";
 import { CanvasData } from "./BallPit";
 
 interface SceneProps {
@@ -25,7 +25,7 @@ export const Scene: React.FC<SceneProps> = ({ data, clicked, setClicked }) => {
       <Enemies />
       <Player clicked={clicked} setClicked={setClicked} />
       <CreatedShapes data={data} />
-      <Walls />
+      <Terrain />
     </Suspense>
   );
 };
