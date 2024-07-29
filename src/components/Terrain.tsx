@@ -114,7 +114,7 @@ export const Terrain: React.FC = () => {
           rotation={[-Math.PI / 2, 0, 0]}
           geometry={geometry}
           material={material}
-          position={[0, -10, 0]}
+          position={[0, -20, 0]}
         />
       </RigidBody>
 
