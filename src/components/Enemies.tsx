@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { RigidBody, CuboidCollider } from "@react-three/rapier";
+import { Sphere } from "@react-three/drei";
 
 const COUNT = 10;
 const SPAWN_RANGE = 20;
@@ -31,8 +32,8 @@ export const Enemies = () => {
     return {
       id: Math.random(),
       position: [x, y, z],
-      isDead: false,
-      deathTime: 0,
+      isPopping: false,
+      popStartTime: 0,
     };
   };
 
@@ -40,7 +41,7 @@ export const Enemies = () => {
     setEnemies((prevEnemies) =>
       prevEnemies.map((enemy) =>
         enemy.id === enemyId
-          ? { ...enemy, isDead: true, deathTime: Date.now() }
+          ? { ...enemy, isPopping: true, popStartTime: Date.now() }
           : enemy
       )
     );
@@ -49,9 +50,9 @@ export const Enemies = () => {
   useFrame((state) => {
     setEnemies((prevEnemies) =>
       prevEnemies.map((enemy, index) => {
-        if (enemy.isDead) {
-          const deathDuration = 1000; // 1 second death animation
-          if (Date.now() - enemy.deathTime > deathDuration) {
+        if (enemy.isPopping) {
+          const popDuration = 500; // 0.5 second pop animation
+          if (Date.now() - enemy.popStartTime > popDuration) {
             return createEnemy(); // Respawn
           }
           return enemy;
@@ -84,17 +85,22 @@ export const Enemies = () => {
   );
 };
 
-const Enemy = ({ id, position, isDead, onCollision }) => {
+const Enemy = ({ id, position, isPopping, onCollision }) => {
   const meshRef = useRef();
+  const [scale, setScale] = useState(1);
 
   useEffect(() => {
-    if (isDead) {
-      // Play death animation
-      meshRef.current.scale.y = 0.1; // Flatten the enemy
-    } else {
-      meshRef.current.scale.y = 1; // Reset scale
+    if (isPopping) {
+      const popAnimation = () => {
+        setScale((prevScale) => {
+          const newScale = prevScale * 1.05;
+          return newScale > 1.5 ? 1.5 : newScale;
+        });
+      };
+      const intervalId = setInterval(popAnimation, 16);
+      return () => clearInterval(intervalId);
     }
-  }, [isDead]);
+  }, [isPopping]);
 
   return (
     <RigidBody position={position} type="fixed">
@@ -103,10 +109,13 @@ const Enemy = ({ id, position, isDead, onCollision }) => {
         sensor
         onIntersectionEnter={onCollision}
       />
-      <mesh ref={meshRef}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color={isDead ? "red" : "green"} />
-      </mesh>
+      <Sphere ref={meshRef} args={[0.5, 16, 16]} scale={scale}>
+        <meshStandardMaterial
+          color={isPopping ? "red" : "lightblue"}
+          transparent
+          opacity={0.7}
+        />
+      </Sphere>
     </RigidBody>
   );
 };

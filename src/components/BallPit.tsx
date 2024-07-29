@@ -7,6 +7,7 @@ import { KeyboardControls } from "@react-three/drei";
 import { Bumper } from "@prisma/client";
 import { Controller } from "./Controller";
 import { Scene } from "./Scene";
+import { Creator } from "./Creator";
 
 export type CanvasData = Bumper[] | null;
 
