@@ -31,7 +31,6 @@ const BallPit: React.FC = () => {
 
   return (
     <div>
-      <Controller setData={setData} />
       <KeyboardControls map={keyboardMap}>
         <Canvas
           style={{

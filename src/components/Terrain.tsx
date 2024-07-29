@@ -3,6 +3,47 @@ import { RigidBody } from "@react-three/rapier";
 import * as Three from "three";
 import { createNoise2D } from "simplex-noise";
 
+const wallSize = 100;
+const wallThickness = 1;
+
+const Cloud: React.FC<{ position: [number, number, number] }> = ({
+  position,
+}) => {
+  const geometry = useMemo(() => new Three.SphereGeometry(1, 16, 16), []);
+  const material = useMemo(
+    () =>
+      new Three.MeshStandardMaterial({
+        color: "white",
+        transparent: true,
+        opacity: 0.8,
+      }),
+    []
+  );
+
+  return (
+    <group position={position}>
+      <mesh
+        geometry={geometry}
+        material={material}
+        position={[0, 0, 0]}
+        scale={[2, 1, 1]}
+      />
+      <mesh
+        geometry={geometry}
+        material={material}
+        position={[1, 0.5, 0]}
+        scale={[1.5, 0.8, 0.8]}
+      />
+      <mesh
+        geometry={geometry}
+        material={material}
+        position={[-1, 0.3, 0]}
+        scale={[1.7, 0.9, 0.9]}
+      />
+    </group>
+  );
+};
+
 export const Terrain: React.FC = () => {
   const geometry = useMemo(() => {
     const noise2D = createNoise2D();
@@ -54,14 +95,34 @@ export const Terrain: React.FC = () => {
     geometry.setAttribute("color", new Three.Float32BufferAttribute(colors, 3));
   }, [geometry]);
 
+  const clouds = useMemo(() => {
+    const cloudPositions = [];
+    for (let i = 0; i < 40; i++) {
+      cloudPositions.push([
+        Math.random() * 100 - 50,
+        Math.random() * 10 + 20,
+        Math.random() * 100 - 50,
+      ] as [number, number, number]);
+    }
+    return cloudPositions;
+  }, []);
+
   return (
-    <RigidBody type="fixed" colliders="trimesh">
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        geometry={geometry}
-        material={material}
-        position={[0, -50, 0]}
-      />
-    </RigidBody>
+    <>
+      <RigidBody type="fixed" colliders="trimesh">
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          geometry={geometry}
+          material={material}
+          position={[0, -10, 0]}
+        />
+      </RigidBody>
+
+      <RigidBody type="fixed" colliders="trimesh">
+        {clouds.map((position, index) => (
+          <Cloud key={index} position={position} />
+        ))}
+      </RigidBody>
+    </>
   );
 };

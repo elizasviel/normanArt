@@ -34,7 +34,7 @@ export const Enemies: React.FC = () => {
 
   const createEnemy = (): Enemy => {
     const x = (Math.random() - 0.5) * SPAWN_RANGE_XZ;
-    const y = Math.random() * SPAWN_RANGE_Y - 50;
+    const y = Math.random() * SPAWN_RANGE_Y - 10;
     const z = (Math.random() - 0.5) * SPAWN_RANGE_XZ;
     initialPositions.current.push(new THREE.Vector3(x, y, z));
     return {
