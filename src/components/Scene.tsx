@@ -3,7 +3,10 @@ import { Enemies } from "./Enemies";
 import { CreatedShapes } from "./CreatedShapes";
 import { Player } from "./Player";
 import { Terrain } from "./Terrain";
+import { Coin } from "./Coin";
 import { CanvasData } from "./BallPit";
+import { RigidBody } from "@react-three/rapier";
+import * as THREE from "three";
 
 interface SceneProps {
   data: CanvasData;
@@ -22,9 +25,9 @@ export const Scene: React.FC<SceneProps> = ({ data, clicked, setClicked }) => {
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
       />
+
+      <Player />
       <Enemies />
-      <Player clicked={clicked} setClicked={setClicked} />
-      <CreatedShapes data={data} />
       <Terrain />
     </Suspense>
   );

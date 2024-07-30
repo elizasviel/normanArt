@@ -3,18 +3,19 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { RigidBody, BallCollider } from "@react-three/rapier";
 import { Sphere } from "@react-three/drei";
+import { Coin } from "./Coin";
 
-const COUNT = 50;
+const COUNT = 25;
 const SPAWN_RANGE_XZ = 100;
 const SPAWN_RANGE_Y = 70;
 const MOVEMENT_RANGE = 5;
 const ENEMY_COLORS = [
-  "lightblue",
-  "lightgreen",
-  "lightpink",
-  "lightyellow",
-  "lightcoral",
-  "lightsalmon",
+  { color: "lightblue", weight: 10 },
+  { color: "lightgreen", weight: 5 },
+  { color: "yellow", weight: 2 },
+  { color: "orange", weight: 2 },
+  { color: "red", weight: 2 },
+  { color: "black", weight: 1 },
 ];
 
 interface Enemy {
@@ -46,12 +47,29 @@ export const Enemies: React.FC = () => {
     const y = Math.random() * SPAWN_RANGE_Y - 10;
     const z = (Math.random() - 0.5) * SPAWN_RANGE_XZ;
     initialPositions.current.push(new THREE.Vector3(x, y, z));
+
+    // Weighted random selection for color
+    const totalWeight = ENEMY_COLORS.reduce(
+      (sum, { weight }) => sum + weight,
+      0
+    );
+    let randomWeight = Math.random() * totalWeight;
+    let selectedColor = ENEMY_COLORS[ENEMY_COLORS.length - 1].color;
+
+    for (const { color, weight } of ENEMY_COLORS) {
+      if (randomWeight <= weight) {
+        selectedColor = color;
+        break;
+      }
+      randomWeight -= weight;
+    }
+
     return {
       id: Math.random(),
       position: [x, y, z],
       isPopping: false,
       popStartTime: 0,
-      color: ENEMY_COLORS[Math.floor(Math.random() * ENEMY_COLORS.length)],
+      color: selectedColor,
     };
   };
 
@@ -119,6 +137,9 @@ const Enemy: React.FC<EnemyProps> = ({
   const [opacity, setOpacity] = useState<number>(0.7);
   const [theta, setTheta] = useState<number>(2 * Math.PI);
   const [phi, setPhi] = useState<number>(2 * Math.PI);
+  const [coins, setCoins] = useState<
+    { id: number; position: [number, number, number] }[]
+  >([]);
 
   useEffect(() => {
     if (isPopping) {
@@ -151,16 +172,30 @@ const Enemy: React.FC<EnemyProps> = ({
   }, [isPopping]);
 
   return (
-    <RigidBody position={position} type="fixed" sensor>
-      <BallCollider args={[4]} sensor onIntersectionEnter={onCollision} />
-      <Sphere ref={meshRef} args={[4, 32, 32, 0, theta, 0, phi]}>
-        <meshStandardMaterial
-          color={isPopping ? "red" : color}
-          transparent
-          opacity={opacity}
-          roughness={0.1}
-        />
-      </Sphere>
-    </RigidBody>
+    <>
+      <RigidBody position={position} type="fixed" sensor>
+        <BallCollider args={[4]} sensor onIntersectionEnter={onCollision} />
+        <Sphere ref={meshRef} args={[4, 32, 32, 0, theta, 0, phi]}>
+          <meshStandardMaterial
+            color={isPopping ? "red" : color}
+            transparent
+            opacity={opacity}
+            roughness={0.1}
+          />
+        </Sphere>
+        {isPopping ? (
+          <>
+            <Coin />
+            <Coin />
+            <Coin />
+            <Coin />
+            <Coin />
+          </>
+        ) : null}
+      </RigidBody>
+    </>
   );
 };
+
+//enemy schema
+//color, health, drops, speed, size,
