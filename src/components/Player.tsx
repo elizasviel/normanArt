@@ -205,7 +205,7 @@ const WeaponMesh = React.forwardRef<
       lockRotations={false}
       sensor
     >
-      <mesh ref={meshRef}>
+      <mesh ref={meshRef} castShadow>
         <boxGeometry args={[0.5, 0.3, 6]} />
         <meshStandardMaterial color="pink" />
       </mesh>
@@ -223,7 +223,7 @@ const PlayerMesh = React.forwardRef<RapierRigidBody>((props, ref) => (
     ref={ref}
     lockRotations={true}
   >
-    <mesh>
+    <mesh castShadow>
       <boxGeometry args={[1, 1, 1]} />
       {["pink", "green", "blue", "yellow", "purple", "orange"].map(
         (color, index) => (
