@@ -17,12 +17,13 @@ const SPEED = 5;
 const SWING_DURATION = 0.5;
 const WEAPON_APPEAR_DURATION = 0.3;
 
-interface PlayerProps {
-  clicked: boolean;
-  setClicked: React.Dispatch<React.SetStateAction<boolean>>;
-}
+const direction = new THREE.Vector3();
 
-export function Player({ clicked, setClicked }: PlayerProps) {
+// "w" moves the player towards the direction the camera is facing
+// player always turns to face the direction they are moving
+// camera follow the player
+
+export function Player() {
   const playerRef = useRef<RapierRigidBody>(null);
   const weaponRef = useRef<RapierRigidBody>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
@@ -42,82 +43,6 @@ export function Player({ clicked, setClicked }: PlayerProps) {
   ]);
   const [, getKeys] = useKeyboardControls();
   const { camera } = useThree();
-
-  useFrame((_, delta) => {
-    playerWeaponJoint.current?.setLimits(-Math.PI, Math.PI);
-
-    handleMovement(delta);
-    updateCameraPosition();
-    handleWeaponSwing(delta);
-    updateWeaponVisibility(delta);
-  });
-
-  const handleMovement = (delta: number) => {
-    const { forward, backward, left, right, space } = getKeys();
-    const direction = calculateMoveDirection(forward, backward, left, right);
-    const velocity = playerRef.current?.linvel();
-
-    if (space && !swinging) {
-      setSwinging(true);
-      swingStartTime.current = Date.now();
-      setClicked(false);
-    }
-    direction.y = space ? 3 : velocity?.y ?? 0;
-
-    if (direction.length() > 0) {
-      playerRef.current?.setLinvel(
-        { x: direction.x * SPEED, y: direction.y, z: direction.z * SPEED },
-        true
-      );
-      updatePlayerRotation(direction, delta);
-    }
-  };
-
-  const calculateMoveDirection = (
-    forward: boolean,
-    backward: boolean,
-    left: boolean,
-    right: boolean
-  ) => {
-    const cameraDirection = new THREE.Vector3(0, 0, -1)
-      .applyQuaternion(camera.quaternion)
-      .setY(0)
-      .normalize();
-    const cameraRight = new THREE.Vector3(1, 0, 0)
-      .applyQuaternion(camera.quaternion)
-      .setY(0)
-      .normalize();
-
-    return new THREE.Vector3()
-      .add(
-        forward
-          ? cameraDirection
-          : backward
-          ? cameraDirection.negate()
-          : new THREE.Vector3()
-      )
-      .add(
-        left ? cameraRight.negate() : right ? cameraRight : new THREE.Vector3()
-      );
-  };
-
-  const updatePlayerRotation = (direction: THREE.Vector3, delta: number) => {
-    const targetRotation = new THREE.Quaternion().setFromUnitVectors(
-      new THREE.Vector3(0, 0, 1),
-      direction
-    );
-    targetRotation.x = targetRotation.z = 0;
-    targetRotation.slerp(playerRotation, 50 * delta);
-    setPlayerRotation(targetRotation);
-    playerRef.current?.setRotation(targetRotation, true);
-  };
-
-  const updateCameraPosition = () => {
-    if (playerRef.current && controlsRef.current) {
-      controlsRef.current.target.copy(playerRef.current.translation());
-      controlsRef.current.update();
-    }
-  };
 
   const handleWeaponSwing = (delta: number) => {
     if (swinging) {
@@ -151,6 +76,90 @@ export function Player({ clicked, setClicked }: PlayerProps) {
       );
     }
   };
+
+  //delta represents the time between frames
+  useFrame((state, delta) => {
+    //check for key presses
+    const { forward, backward, left, right, space } = getKeys();
+
+    //get the current linear velocity of the player
+    //vector contains x, y, and z velocities
+    const velocity = playerRef.current?.linvel();
+
+    //console.log(velocity, weaponRef.current?.linvel()); velocity values are there, lock/disable probably just throws out the values
+
+    //get camera orientation
+    const cameraQuaternion = camera.quaternion;
+    //(maybe) calculates the camera direction based on the camera's orientation
+    const cameraDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(
+      cameraQuaternion
+    );
+
+    cameraDirection.y = 0; // ignore vertical rotation
+    cameraDirection.normalize(); //normalize values
+
+    const cameraRight = new THREE.Vector3(1, 0, 0).applyQuaternion(
+      cameraQuaternion
+    );
+    cameraRight.y = 0;
+    cameraRight.normalize();
+
+    direction.set(0, 0, 0);
+    if (forward) direction.add(cameraDirection);
+    if (backward) direction.sub(cameraDirection);
+    if (left) direction.sub(cameraRight);
+    if (right) direction.add(cameraRight);
+    if (space) {
+      direction.y = 3;
+      if (!swinging) {
+        setSwinging(true);
+        swingStartTime.current = Date.now();
+      }
+    }
+    if (!space) direction.y = velocity?.y ?? 0;
+    // direction.normalize(); // removed normalzation to allow for faster movement
+
+    //.length () : Float
+    //Computes the Euclidean length (straight-line length) from (0, 0, 0) to (x, y, z).
+
+    if (direction.length() > 0) {
+      playerRef.current?.setLinvel(
+        { x: direction.x * SPEED, y: direction.y, z: direction.z * SPEED },
+        true //true wakes, or activates, the RigidBody
+      );
+    }
+
+    if (forward || backward || left || right) {
+      //player should rotate only in response to these user inputs
+      //compute rotation, set state, update ref
+      const targetRotation = new THREE.Quaternion().setFromUnitVectors(
+        new THREE.Vector3(0, 0, 1),
+        direction
+      );
+
+      targetRotation.x = 0;
+      targetRotation.z = 0;
+
+      targetRotation.slerp(playerRotation, 50 * delta);
+
+      setPlayerRotation(targetRotation);
+
+      playerRef.current?.setRotation(playerRotation, true);
+    }
+
+    if (playerRef.current && controlsRef.current) {
+      const cubePosition = playerRef.current.translation();
+      controlsRef.current.target.set(
+        cubePosition.x,
+        cubePosition.y,
+        cubePosition.z
+      );
+      controlsRef.current.update();
+    }
+
+    handleWeaponSwing(delta);
+    updateWeaponVisibility(delta);
+  });
 
   return (
     <>
@@ -213,7 +222,6 @@ const PlayerMesh = React.forwardRef<RapierRigidBody>((props, ref) => (
     ccd={true}
     ref={ref}
     lockRotations={true}
-    dominanceGroup={1}
   >
     <mesh>
       <boxGeometry args={[1, 1, 1]} />

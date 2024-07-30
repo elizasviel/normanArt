@@ -126,3 +126,10 @@ export const Terrain: React.FC = () => {
     </>
   );
 };
+
+//perhaps threejs sky?
+//perhaps textgeometry
+//perhaps textures?
+//perhaps fog?
+//threejs sprite for player!!!
+//threejs skeleton bones for whip
