@@ -11,9 +11,15 @@ interface SceneProps {
   data: CanvasData;
   clicked: boolean;
   setClicked: React.Dispatch<React.SetStateAction<boolean>>;
+  setCoins: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export const Scene: React.FC<SceneProps> = ({ data, clicked, setClicked }) => {
+export const Scene: React.FC<SceneProps> = ({
+  data,
+  clicked,
+  setClicked,
+  setCoins,
+}) => {
   const [playerPosition, setPlayerPosition] = useState<Vector>({
     x: 0,
     y: 0,
@@ -32,7 +38,7 @@ export const Scene: React.FC<SceneProps> = ({ data, clicked, setClicked }) => {
         playerPosition={playerPosition}
         setPlayerPosition={setPlayerPosition}
       ></Player>
-      <Enemies playerPosition={playerPosition}></Enemies>
+      <Enemies playerPosition={playerPosition} setCoins={setCoins}></Enemies>
       <Terrain />
     </Suspense>
   );

@@ -8,6 +8,7 @@ import { Bumper } from "@prisma/client";
 import { Controller } from "./Controller";
 import { Scene } from "./Scene";
 import { Creator } from "./Creator";
+import HUD from "./HUD";
 
 export type CanvasData = Bumper[] | null;
 
@@ -21,6 +22,7 @@ const keyboardMap = [
 
 const BallPit: React.FC = () => {
   const [data, setData] = useState<CanvasData>(null);
+  const [coins, setCoins] = useState(0);
   const [clicked, setClicked] = useState(false);
 
   useEffect(() => {
@@ -40,12 +42,17 @@ const BallPit: React.FC = () => {
           }}
           onClick={() => setClicked(true)}
         >
-          <Controller setData={setData} />
           <Physics interpolate={true} gravity={[0, -9.81, 0]}>
-            <Scene data={data} clicked={clicked} setClicked={setClicked} />
+            <Scene
+              data={data}
+              clicked={clicked}
+              setClicked={setClicked}
+              setCoins={setCoins}
+            />
           </Physics>
         </Canvas>
       </KeyboardControls>
+      <HUD coins={coins} />
     </div>
   );
 };
