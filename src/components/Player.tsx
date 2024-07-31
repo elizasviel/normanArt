@@ -12,6 +12,7 @@ import {
   OrbitControls,
 } from "@react-three/drei";
 import * as THREE from "three";
+import { Vector } from "three/examples/jsm/Addons.js";
 
 const SPEED = 5;
 const SWING_DURATION = 0.5;
@@ -23,7 +24,13 @@ const direction = new THREE.Vector3();
 // player always turns to face the direction they are moving
 // camera follow the player
 
-export function Player() {
+export function Player({
+  playerPosition,
+  setPlayerPosition,
+}: {
+  playerPosition: Vector;
+  setPlayerPosition: (position: Vector) => void;
+}) {
   const playerRef = useRef<RapierRigidBody>(null);
   const weaponRef = useRef<RapierRigidBody>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
@@ -79,6 +86,10 @@ export function Player() {
 
   //delta represents the time between frames
   useFrame((state, delta) => {
+    //logs the player position to be used in other components. Does NOT change the current player position
+    if (playerRef.current) {
+      setPlayerPosition(playerRef.current.translation());
+    }
     //check for key presses
     const { forward, backward, left, right, space } = getKeys();
 
@@ -222,6 +233,7 @@ const PlayerMesh = React.forwardRef<RapierRigidBody>((props, ref) => (
     ccd={true}
     ref={ref}
     lockRotations={true}
+    name="player"
   >
     <mesh castShadow>
       <boxGeometry args={[1, 1, 1]} />

@@ -5,7 +5,9 @@ import { RigidBody, BallCollider } from "@react-three/rapier";
 import { Sphere } from "@react-three/drei";
 import { Coin } from "./Coin";
 
-const COUNT = 25;
+import { Vector } from "three/examples/jsm/Addons.js";
+
+const COUNT = 50;
 const SPAWN_RANGE_XZ = 100;
 const SPAWN_RANGE_Y = 70;
 const MOVEMENT_RANGE = 5;
@@ -26,7 +28,9 @@ interface Enemy {
   color: string;
 }
 
-export const Enemies: React.FC = () => {
+export const Enemies: React.FC<{ playerPosition: Vector }> = ({
+  playerPosition,
+}) => {
   const [enemies, setEnemies] = useState<Enemy[]>([]);
   const initialPositions = useRef<THREE.Vector3[]>([]);
 
@@ -88,7 +92,8 @@ export const Enemies: React.FC = () => {
       prevEnemies.map((enemy, index) => {
         if (enemy.isPopping) {
           const popDuration = 2000;
-          if (Date.now() - enemy.popStartTime > popDuration) {
+          const lootStayTime = 5000;
+          if (Date.now() - enemy.popStartTime > popDuration + lootStayTime) {
             return createEnemy();
           }
           return enemy;
@@ -112,6 +117,7 @@ export const Enemies: React.FC = () => {
           key={enemy.id}
           {...enemy}
           onCollision={() => handleCollision(enemy.id)}
+          playerPosition={playerPosition}
         />
       ))}
     </>
@@ -124,6 +130,7 @@ interface EnemyProps {
   isPopping: boolean;
   onCollision: () => void;
   color: string;
+  playerPosition: Vector;
 }
 
 const Enemy: React.FC<EnemyProps> = ({
@@ -132,14 +139,12 @@ const Enemy: React.FC<EnemyProps> = ({
   isPopping,
   onCollision,
   color,
+  playerPosition,
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const [opacity, setOpacity] = useState<number>(0.7);
   const [theta, setTheta] = useState<number>(2 * Math.PI);
   const [phi, setPhi] = useState<number>(2 * Math.PI);
-  const [coins, setCoins] = useState<
-    { id: number; position: [number, number, number] }[]
-  >([]);
 
   useEffect(() => {
     if (isPopping) {
@@ -185,11 +190,11 @@ const Enemy: React.FC<EnemyProps> = ({
         </Sphere>
         {isPopping ? (
           <>
-            <Coin />
-            <Coin />
-            <Coin />
-            <Coin />
-            <Coin />
+            <Coin playerPosition={playerPosition} />
+            <Coin playerPosition={playerPosition} />
+            <Coin playerPosition={playerPosition} />
+            <Coin playerPosition={playerPosition} />
+            <Coin playerPosition={playerPosition} />
           </>
         ) : null}
       </RigidBody>
