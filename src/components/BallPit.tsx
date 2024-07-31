@@ -40,6 +40,7 @@ const BallPit: React.FC = () => {
           }}
           onClick={() => setClicked(true)}
         >
+          <Controller setData={setData} />
           <Physics interpolate={true} gravity={[0, -9.81, 0]}>
             <Scene data={data} clicked={clicked} setClicked={setClicked} />
           </Physics>
