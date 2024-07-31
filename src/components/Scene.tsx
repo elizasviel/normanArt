@@ -1,12 +1,10 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 import { Enemies } from "./Enemies";
-import { CreatedShapes } from "./CreatedShapes";
 import { Player } from "./Player";
 import { Terrain } from "./Terrain";
-import { Coin } from "./Coin";
 import { CanvasData } from "./BallPit";
-import { RigidBody } from "@react-three/rapier";
 import * as THREE from "three";
+import { Vector } from "three/examples/jsm/Addons.js";
 
 //Passing data and clickState
 interface SceneProps {
@@ -16,6 +14,11 @@ interface SceneProps {
 }
 
 export const Scene: React.FC<SceneProps> = ({ data, clicked, setClicked }) => {
+  const [playerPosition, setPlayerPosition] = useState<Vector>({
+    x: 0,
+    y: 0,
+    z: 0,
+  });
   return (
     <Suspense fallback={null}>
       <ambientLight intensity={0.5}></ambientLight>
@@ -25,13 +28,15 @@ export const Scene: React.FC<SceneProps> = ({ data, clicked, setClicked }) => {
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
       />
-
-      <Player></Player>
-
-      <Enemies />
+      <Player
+        playerPosition={playerPosition}
+        setPlayerPosition={setPlayerPosition}
+      ></Player>
+      <Enemies playerPosition={playerPosition}></Enemies>
       <Terrain />
     </Suspense>
   );
 };
 
 //Perhaps add a light to produce shadows for balloons and player
+//
