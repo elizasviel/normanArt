@@ -12,12 +12,9 @@ const SPAWN_RANGE_XZ = 100;
 const SPAWN_RANGE_Y = 70;
 const MOVEMENT_RANGE = 5;
 const ENEMY_COLORS = [
-  { color: "lightblue", weight: 10 },
-  { color: "lightgreen", weight: 5 },
-  { color: "yellow", weight: 2 },
-  { color: "orange", weight: 2 },
-  { color: "red", weight: 2 },
-  { color: "black", weight: 1 },
+  { color: "lightblue", weight: 1 },
+  { color: "lightgreen", weight: 3 },
+  { color: "orange", weight: 10 },
 ];
 
 interface Enemy {
