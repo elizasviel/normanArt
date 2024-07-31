@@ -7,17 +7,14 @@ import { Coin } from "./Coin";
 
 import { Vector } from "three/examples/jsm/Addons.js";
 
-const COUNT = 50;
+const COUNT = 30;
 const SPAWN_RANGE_XZ = 100;
 const SPAWN_RANGE_Y = 70;
 const MOVEMENT_RANGE = 5;
 const ENEMY_COLORS = [
-  { color: "lightblue", weight: 10 },
-  { color: "lightgreen", weight: 5 },
-  { color: "yellow", weight: 2 },
-  { color: "orange", weight: 2 },
-  { color: "red", weight: 2 },
-  { color: "black", weight: 1 },
+  { color: "lightblue", weight: 1 },
+  { color: "lightgreen", weight: 3 },
+  { color: "orange", weight: 10 },
 ];
 
 interface Enemy {
@@ -94,7 +91,7 @@ export const Enemies: React.FC<{
     setEnemies((prevEnemies) =>
       prevEnemies.map((enemy, index) => {
         if (enemy.isPopping) {
-          const popDuration = 2000;
+          const popDuration = 1000;
           const lootStayTime = 5000;
           if (Date.now() - enemy.popStartTime > popDuration + lootStayTime) {
             return createEnemy();
@@ -195,11 +192,36 @@ const Enemy: React.FC<EnemyProps> = ({
         </Sphere>
         {isPopping ? (
           <>
-            <Coin playerPosition={playerPosition} setCoins={setCoins} />
-            <Coin playerPosition={playerPosition} setCoins={setCoins} />
-            <Coin playerPosition={playerPosition} setCoins={setCoins} />
-            <Coin playerPosition={playerPosition} setCoins={setCoins} />
-            <Coin playerPosition={playerPosition} setCoins={setCoins} />
+            <Coin
+              playerPosition={playerPosition}
+              setCoins={setCoins}
+              color={color}
+              value={1}
+            />
+            <Coin
+              playerPosition={playerPosition}
+              setCoins={setCoins}
+              color={color}
+              value={5}
+            />
+            <Coin
+              playerPosition={playerPosition}
+              setCoins={setCoins}
+              color={color}
+              value={10}
+            />
+            <Coin
+              playerPosition={playerPosition}
+              setCoins={setCoins}
+              color={color}
+              value={100}
+            />
+            <Coin
+              playerPosition={playerPosition}
+              setCoins={setCoins}
+              color={color}
+              value={1000}
+            />
           </>
         ) : null}
       </RigidBody>

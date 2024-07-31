@@ -9,9 +9,11 @@ import { Vector } from "three/examples/jsm/Addons.js";
 interface CoinProps {
   playerPosition: Vector;
   setCoins: React.Dispatch<React.SetStateAction<number>>;
+  color: string;
+  value: number;
 }
 
-export const Coin = ({ playerPosition, setCoins }: CoinProps) => {
+export const Coin = ({ playerPosition, setCoins, color, value }: CoinProps) => {
   const coinRef = useRef<any>(null);
   const [isCollected, setIsCollected] = useState(false);
 
@@ -70,14 +72,14 @@ export const Coin = ({ playerPosition, setCoins }: CoinProps) => {
       >
         <mesh>
           <cylinderGeometry args={[0.5, 0.5, 0.2]} />
-          <meshStandardMaterial
-            color="yellow"
-            roughness={0}
-            emissive="red"
-            emissiveIntensity={1}
+          <meshPhongMaterial
+            color={color}
+            emissive={color}
+            emissiveIntensity={0.5}
+            shininess={100}
           />
         </mesh>
-        <pointLight color="yellow" intensity={1} distance={5} />
+        <pointLight intensity={1} color={"yellow"} />
       </RigidBody>
     );
   }
