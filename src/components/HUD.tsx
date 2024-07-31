@@ -14,6 +14,8 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ coins }) => {
   );
 };
 
+Scoreboard.displayName = "Scoreboard";
+
 const HUD: React.FC<{ coins: number }> = ({ coins }) => {
   return (
     <div className="hud">
@@ -21,5 +23,7 @@ const HUD: React.FC<{ coins: number }> = ({ coins }) => {
     </div>
   );
 };
+
+HUD.displayName = "HUD";
 
 export default HUD;
