@@ -195,11 +195,36 @@ const Enemy: React.FC<EnemyProps> = ({
         </Sphere>
         {isPopping ? (
           <>
-            <Coin playerPosition={playerPosition} setCoins={setCoins} />
-            <Coin playerPosition={playerPosition} setCoins={setCoins} />
-            <Coin playerPosition={playerPosition} setCoins={setCoins} />
-            <Coin playerPosition={playerPosition} setCoins={setCoins} />
-            <Coin playerPosition={playerPosition} setCoins={setCoins} />
+            <Coin
+              playerPosition={playerPosition}
+              setCoins={setCoins}
+              color={color}
+              value={1}
+            />
+            <Coin
+              playerPosition={playerPosition}
+              setCoins={setCoins}
+              color={color}
+              value={5}
+            />
+            <Coin
+              playerPosition={playerPosition}
+              setCoins={setCoins}
+              color={color}
+              value={10}
+            />
+            <Coin
+              playerPosition={playerPosition}
+              setCoins={setCoins}
+              color={color}
+              value={100}
+            />
+            <Coin
+              playerPosition={playerPosition}
+              setCoins={setCoins}
+              color={color}
+              value={1000}
+            />
           </>
         ) : null}
       </RigidBody>
