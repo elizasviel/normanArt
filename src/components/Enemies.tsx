@@ -26,11 +26,13 @@ interface Enemy {
   isPopping: boolean;
   popStartTime: number;
   color: string;
+  setCoins: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export const Enemies: React.FC<{ playerPosition: Vector }> = ({
-  playerPosition,
-}) => {
+export const Enemies: React.FC<{
+  playerPosition: Vector;
+  setCoins: React.Dispatch<React.SetStateAction<number>>;
+}> = ({ playerPosition, setCoins }) => {
   const [enemies, setEnemies] = useState<Enemy[]>([]);
   const initialPositions = useRef<THREE.Vector3[]>([]);
 
@@ -74,6 +76,7 @@ export const Enemies: React.FC<{ playerPosition: Vector }> = ({
       isPopping: false,
       popStartTime: 0,
       color: selectedColor,
+      setCoins,
     };
   };
 
@@ -131,6 +134,7 @@ interface EnemyProps {
   onCollision: () => void;
   color: string;
   playerPosition: Vector;
+  setCoins: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const Enemy: React.FC<EnemyProps> = ({
@@ -140,6 +144,7 @@ const Enemy: React.FC<EnemyProps> = ({
   onCollision,
   color,
   playerPosition,
+  setCoins,
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const [opacity, setOpacity] = useState<number>(0.7);
@@ -190,11 +195,11 @@ const Enemy: React.FC<EnemyProps> = ({
         </Sphere>
         {isPopping ? (
           <>
-            <Coin playerPosition={playerPosition} />
-            <Coin playerPosition={playerPosition} />
-            <Coin playerPosition={playerPosition} />
-            <Coin playerPosition={playerPosition} />
-            <Coin playerPosition={playerPosition} />
+            <Coin playerPosition={playerPosition} setCoins={setCoins} />
+            <Coin playerPosition={playerPosition} setCoins={setCoins} />
+            <Coin playerPosition={playerPosition} setCoins={setCoins} />
+            <Coin playerPosition={playerPosition} setCoins={setCoins} />
+            <Coin playerPosition={playerPosition} setCoins={setCoins} />
           </>
         ) : null}
       </RigidBody>

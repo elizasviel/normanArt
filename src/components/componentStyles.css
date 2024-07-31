@@ -1,0 +1,26 @@
+.hud {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  padding: 10px 15px;
+  color: white;
+  font-family: "Arial", sans-serif;
+  z-index: 1000;
+}
+
+.scoreboard {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.coin-icon {
+  font-size: 1.2em;
+}
+
+.coin-count {
+  font-size: 1.1em;
+  font-weight: bold;
+}

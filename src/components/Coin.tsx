@@ -6,7 +6,12 @@ import { useState } from "react";
 
 import { Vector } from "three/examples/jsm/Addons.js";
 
-export const Coin = ({ playerPosition }: { playerPosition: Vector }) => {
+interface CoinProps {
+  playerPosition: Vector;
+  setCoins: React.Dispatch<React.SetStateAction<number>>;
+}
+
+export const Coin = ({ playerPosition, setCoins }: CoinProps) => {
   const coinRef = useRef<any>(null);
   const [isCollected, setIsCollected] = useState(false);
 
@@ -14,6 +19,7 @@ export const Coin = ({ playerPosition }: { playerPosition: Vector }) => {
     const collidingBody = event.other;
     if (collidingBody && collidingBody.rigidBodyObject.name === "player") {
       setIsCollected(true);
+      setCoins((prev) => prev + 1);
     }
   };
 
@@ -59,6 +65,8 @@ export const Coin = ({ playerPosition }: { playerPosition: Vector }) => {
         gravityScale={0.5}
         restitution={0.3}
         onCollisionEnter={handleCollision}
+        enabledRotations={[false, true, false]}
+        name="coin"
       >
         <mesh>
           <cylinderGeometry args={[0.5, 0.5, 0.2]} />
