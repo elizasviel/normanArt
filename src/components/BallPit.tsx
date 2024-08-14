@@ -33,8 +33,11 @@ const BallPit: React.FC = () => {
 
   return (
     <div>
+      <HUD coins={coins} />
+
       <KeyboardControls map={keyboardMap}>
         <Canvas
+          frameloop="demand"
           style={{
             width: "100vw",
             height: "100vh",
@@ -52,7 +55,6 @@ const BallPit: React.FC = () => {
           </Physics>
         </Canvas>
       </KeyboardControls>
-      <HUD coins={coins} />
     </div>
   );
 };
